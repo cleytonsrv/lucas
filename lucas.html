@@ -1,0 +1,5064 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flow Easy</title>
+  <!-- Bibliotecas para exportação PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    /* RESET */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* Variáveis para Temas (Claro e Escuro) */
+    :root {
+      --background-color: #f5f5f5;
+      --card-bg: #ffffff;
+      --primary-color: #0c3c82;
+      --primary-light: #1976d2;
+      --primary-gradient: linear-gradient(135deg, #1976d2, #64b5f6);
+      --secondary-color: #333333;
+      --text-color: #333333;
+      --text-secondary: #666666;
+      --border-color: #e0e0e0;
+      --menu-bg: #ffffff;
+      --menu-item-bg: #f0f4ff;
+      --menu-item-hover: #e6f0ff;
+      --modal-bg: rgba(0, 0, 0, 0.5);
+      --input-bg: #f5f5f5;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --success-color: #4caf50;
+      --error-color: #f44336;
+      --login-gradient: linear-gradient(135deg, #0d47a1, #2196f3);
+    }
+
+    /* Variáveis para o Tema Escuro */
+    [data-theme="dark"] {
+      --background-color: #1e1e2e;
+      --card-bg: #2a2a3a;
+      --primary-color: #64b5f6;
+      --primary-light: #90caf9;
+      --primary-gradient: linear-gradient(135deg, #0d47a1, #2196f3);
+      --secondary-color: #bcbcbc;
+      --text-color: #eceff1;
+      --text-secondary: #b0bec5;
+      --border-color: #404040;
+      --menu-bg: #2a2a3a;
+      --menu-item-bg: #3a3a4a;
+      --menu-item-hover: #4a4a5a;
+      --modal-bg: rgba(0, 0, 0, 0.7);
+      --input-bg: #3a3a4a;
+      --shadow-color: rgba(0, 0, 0, 0.25);
+      --success-color: #81c784;
+      --error-color: #e57373;
+      --login-gradient: linear-gradient(135deg, #1a237e, #0d47a1);
+    }
+
+    /* BODY: Classes para tela de login ou menu */
+    body.login-bg {
+      background: var(--login-gradient);
+      height: 100vh; 
+      overflow: hidden;
+    }
+    body.menu-bg {
+      background-color: var(--background-color);
+      min-height: 100vh;
+      overflow: auto;
+      color: var(--text-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Classe para ocultar elementos */
+    .hidden {
+      display: none !important;
+    }
+
+    /* TELA DE LOGIN */
+    .login-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 400px;
+      max-width: 90%;
+      background-color: var(--card-bg);
+      border-radius: 10px;
+      box-shadow: 0 10px 25px var(--shadow-color);
+      text-align: center;
+      padding: 40px;
+    }
+
+    @media (max-width: 576px) {
+      .login-container {
+        padding: 30px 20px;
+        width: 320px;
+    }
+
+    .login-container h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+      
+      .input-group input {
+        padding: 12px;
+        font-size: 14px;
+      }
+    }
+
+    .login-container h1 {
+      color: var(--primary-color);
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 5px;
+      background-color: var(--input-bg);
+      font-size: 16px;
+      transition: all 0.3s;
+      border-left: 4px solid transparent;
+      color: var(--text-color);
+    }
+    .input-group input:focus {
+      outline: none;
+      background-color: var(--card-bg);
+      box-shadow: 0 0 0 2px var(--primary-light);
+      border-left: 4px solid var(--primary-light);
+    }
+    .input-group label {
+      position: absolute;
+      left: 15px;
+      top: 15px;
+      color: var(--text-secondary);
+      transition: all 0.3s;
+      pointer-events: none;
+    }
+    .input-group input:focus + label,
+    .input-group input:not(:placeholder-shown) + label {
+      transform: translateY(-25px);
+      font-size: 12px;
+      color: var(--primary-light);
+      background-color: var(--card-bg);
+      padding: 0 5px;
+    }
+    .input-group input::placeholder {
+      color: transparent;
+    }
+
+    .login-btn {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 15px;
+      width: 100%;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+    .login-btn:hover {
+      background: linear-gradient(135deg, #0d47a1, #1976d2);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .message {
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .error-message {
+      color: var(--error-color);
+      background-color: rgba(244, 67, 54, 0.1);
+    }
+    .success-message {
+      color: var(--success-color);
+      background-color: rgba(76, 175, 80, 0.1);
+    }
+
+    /* MENU CONTAINER */
+    .menu-container {
+      display: none;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: row;
+    }
+
+    /* Botão para mobile */
+    #mobileMenuToggle {
+      display: none;
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 1000;
+      background-color: #0c3c82;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 260px;
+      background-color: var(--menu-bg);
+      box-shadow: 2px 0 5px var(--shadow-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+    
+    /* Responsividade */
+    @media (max-width: 992px) {
+      .menu-container {
+        flex-direction: column;
+      }
+      
+      #mobileMenuToggle {
+        display: block;
+      }
+      
+      .sidebar {
+        position: fixed;
+        left: -260px; /* Escondido por padrão */
+        height: 100%;
+        width: 260px;
+      }
+      
+      .sidebar.active {
+        left: 0; /* Visível quando ativo */
+      }
+      
+      .main-content {
+        margin-left: 0 !important;
+        padding: 20px !important;
+      }
+      
+      /* Fundo escuro quando menu está aberto */
+      .menu-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 99;
+      }
+      
+      .menu-overlay.active {
+        display: block;
+      }
+    }
+    
+    /* Dispositivos ainda menores */
+    @media (max-width: 576px) {
+      .stats-cards {
+        grid-template-columns: 1fr !important;
+      }
+      
+      .chart-container {
+        grid-template-columns: 1fr !important;
+      }
+      
+      .route-btn {
+        flex: 1 1 calc(50% - 15px) !important;
+      }
+    }
+
+    /* Ajustes para tablets */
+    @media (min-width: 577px) and (max-width: 991px) {
+      .stats-cards {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+      
+      .route-btn {
+        flex: 1 1 calc(33.33% - 15px) !important;
+      }
+    }
+
+    .logo {
+      font-weight: bold;
+      font-size: 24px;
+      color: var(--primary-color);
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 15px 0;
+      border-bottom: 2px solid var(--border-color);
+    }
+    .menu a {
+      display: flex;
+      align-items: center;
+      padding: 14px 20px;
+      margin-bottom: 12px;
+      background-color: var(--menu-item-bg);
+      color: var(--primary-color);
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .menu a:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background-color: var(--primary-light);
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+      border-radius: 10px 0 0 10px;
+    }
+    .menu a.active {
+      background-color: var(--menu-item-hover);
+      box-shadow: 0 4px 8px var(--shadow-color);
+    }
+    .menu a.active:before {
+      transform: scaleY(1);
+    }
+    .menu a:hover {
+      background-color: var(--menu-item-hover);
+      transform: translateX(5px);
+    }
+    .menu a i {
+      margin-right: 12px;
+      font-size: 18px;
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      margin: 20px 0;
+      background-color: var(--menu-item-bg);
+      border-radius: 10px;
+      box-shadow: 0 2px 5px var(--shadow-color);
+    }
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 12px;
+    }
+    .user-details {
+      flex: 1;
+    }
+    .user-name {
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 4px;
+      font-size: 16px;
+    }
+    .user-role {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .logout-btn {
+      background: linear-gradient(to right, #ef4444, #dc2626);
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logout-btn i {
+      margin-right: 8px;
+    }
+    .logout-btn:hover {
+      background: linear-gradient(to right, #dc2626, #b91c1c);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+    }
+
+    /* CONTEÚDO PRINCIPAL */
+    .main-content {
+      flex: 1;
+      padding: 40px;
+      transition: all 0.3s ease;
+      color: var(--text-color);
+    }
+    
+    @media (max-width: 768px) {
+    .main-content h1 {
+        font-size: 22px;
+      }
+      
+      .bar-chart {
+        height: 180px;
+        padding-left: 20px;
+      }
+      
+      .bar:before, .bar:after {
+        font-size: 10px;
+      }
+      
+      .popup-content {
+        padding: 20px;
+        max-width: 90%;
+      }
+    }
+
+    .main-content h1 {
+      color: var(--primary-color);
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    .main-content p {
+      font-size: 16px;
+      color: var(--text-color);
+    }
+
+    /* ESTILOS PARA "GERAR DOCUMENTOS" */
+    .gerar-doc-container {
+      /* Removendo borda e cor de fundo */
+      margin: 20px 0;
+      padding: 0;
+      border: none;
+      background-color: transparent;
+    }
+    .gerar-doc-container label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+    .gerar-doc-container input {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background-color: var(--card-bg);
+      font-size: 15px;
+      box-shadow: inset 2px 2px 5px var(--shadow-color),
+                 inset -2px -2px 5px rgba(255,255,255,0.5);
+      transition: all 0.3s ease;
+    }
+    .gerar-doc-container input:focus {
+      outline: none;
+      box-shadow: inset 3px 3px 7px var(--shadow-color),
+                 inset -3px -3px 7px rgba(255,255,255,0.5);
+    }
+    .button-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .route-btn {
+      flex: 1 1 calc(25% - 15px);
+      min-width: 100px;
+      padding: 14px 10px;
+      background: var(--menu-item-bg);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+      font-weight: 600;
+      color: var(--primary-color);
+      transition: all 0.3s ease;
+      box-shadow: 5px 5px 10px var(--shadow-color);
+    }
+    .route-btn:hover, .route-btn.active {
+      background: var(--primary-gradient);
+      color: white;
+    }
+    .route-btn:active {
+      transform: translateY(1px);
+      box-shadow: 3px 3px 6px var(--shadow-color);
+    }
+    /* Adicionando efeito de seleção para botões ativos */
+    .route-btn.active {
+      background: var(--primary-gradient);
+      color: white;
+      box-shadow: inset 3px 3px 6px var(--shadow-color);
+    }
+    #routeInputContainer {
+      display: none;
+    }
+    #sendRouteBtn {
+      width: 150px;
+      padding: 14px;
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 5px 5px 10px var(--shadow-color);
+      align-self: flex-start;
+    }
+    #sendRouteBtn:hover {
+      background: linear-gradient(135deg, #0d47a1, #1976d2);
+      transform: translateY(-3px);
+    }
+    #sendRouteBtn:active {
+      transform: translateY(1px);
+      box-shadow: 3px 3px 6px var(--shadow-color);
+    }
+    /* Estilos para os popups */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--modal-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    .popup-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .popup-content {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 10px 25px var(--shadow-color);
+      text-align: center;
+      transform: translateY(-20px);
+      transition: transform 0.3s;
+    }
+    .popup-overlay.active .popup-content {
+      transform: translateY(0);
+    }
+    .popup-title {
+      color: var(--primary-color);
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    .popup-input {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background-color: var(--input-bg);
+      font-size: 16px;
+      margin-bottom: 20px;
+      box-shadow: inset 2px 2px 5px var(--shadow-color);
+      color: var(--text-color);
+    }
+    .popup-input:focus {
+      outline: none;
+      box-shadow: inset 3px 3px 7px var(--shadow-color);
+    }
+    .popup-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    .popup-btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .popup-btn-primary {
+      background: var(--primary-gradient);
+      color: white;
+      box-shadow: 5px 5px 10px var(--shadow-color);
+    }
+    .popup-btn-primary:hover {
+      background: linear-gradient(135deg, #0d47a1, #1976d2);
+      transform: translateY(-3px);
+    }
+    .popup-btn-secondary {
+      background: var(--menu-item-bg);
+      color: var(--primary-color);
+      box-shadow: 5px 5px 10px var(--shadow-color);
+    }
+    .popup-btn-secondary:hover {
+      background: var(--menu-item-hover);
+      transform: translateY(-3px);
+    }
+
+    /* Botão de alternar tema */
+    .theme-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--primary-gradient);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: white;
+      font-size: 20px;
+      box-shadow: 0 2px 5px var(--shadow-color);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      z-index: 10;
+    }
+    
+    .theme-toggle:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px var(--shadow-color);
+    }
+
+    /* Elementos do Dashboard */
+    .stat-card {
+      background: var(--card-bg);
+      box-shadow: 0 4px 12px var(--shadow-color);
+    }
+    
+    .stat-value {
+      color: var(--primary-color);
+    }
+    
+    .stat-label {
+      color: var(--text-secondary);
+    }
+    
+    .chart-box {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 12px var(--shadow-color);
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+    
+    .chart-title {
+      color: var(--primary-color);
+    }
+    
+    .data-table th {
+      color: var(--primary-color);
+    }
+    
+    .data-table td {
+      color: var(--text-color);
+    }
+    
+    .data-table tr:hover {
+      background-color: var(--menu-item-bg);
+    }
+    
+    .recent-activity {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 12px var(--shadow-color);
+      margin-top: 20px;
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+    
+    .data-table-container {
+      overflow-x: auto;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 300px;
+    }
+    
+    .data-table th, .data-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .data-table th {
+      position: sticky;
+      top: 0;
+      font-weight: 600;
+      color: var(--primary-color);
+      background-color: var(--card-bg);
+      z-index: 1;
+    }
+    
+    .data-table td {
+      color: var(--text-color);
+    }
+    
+    .data-table tr:hover {
+      background-color: var(--menu-item-bg);
+    }
+    
+    .activity-item {
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+    }
+    
+    .activity-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    
+    .status-gerado { background-color: #4caf50; }
+    .status-pendente { background-color: #ff9800; }
+    .status-enviado { background-color: #2196f3; }
+    .status-cancelado { background-color: #f44336; }
+    
+    .activity-info {
+      flex: 1;
+    }
+    
+    .activity-time {
+      color: #999;
+      font-size: 12px;
+    }
+    
+    .refresh-btn {
+      background: linear-gradient(145deg, #1976d2, #64b5f6);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+    }
+    
+    .refresh-btn:hover {
+      background: linear-gradient(145deg, #0d47a1, #1976d2);
+      transform: translateY(-2px);
+    }
+
+    /* Estilos para os gráficos */
+    .bar-chart {
+      position: relative;
+      height: 250px; /* Aumentando a altura */
+      margin-top: 50px;
+      margin-bottom: 50px;
+      padding-left: 5px;
+      padding-right: 5px;
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+      overflow-y: hidden; /* Impedir rolagem vertical */
+      min-height: 300px;
+    }
+    
+    .bar-chart-container {
+      display: flex;
+      height: 200px;
+      min-width: 100%;
+      align-items: flex-end;
+      padding-bottom: 30px; /* Espaço para valores */
+      width: max-content; /* Importante para permitir que o conteúdo determine a largura */
+    }
+    
+    .bar {
+      flex: 0 0 60px; /* Largura fixa maior */
+      margin: 0 20px; /* Mais espaço entre as barras */
+      background: linear-gradient(to top, var(--primary-light), #64b5f6);
+      min-width: 40px; /* Garantindo largura mínima */
+      max-width: 60px; /* Limitando largura máxima */
+      border-radius: 5px 5px 0 0;
+      position: relative;
+    }
+    
+    .bar:after {
+      content: attr(data-value);
+      position: absolute;
+      bottom: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      white-space: nowrap;
+      color: var(--text-color);
+      text-align: center;
+    }
+    
+    .bar:before {
+      content: attr(data-label);
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-15deg);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 80px; /* Largura máxima do rótulo */
+      color: var(--text-color);
+      text-align: center;
+    }
+    
+    /* Indicador de rolagem */
+    .scroll-indicator {
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: var(--text-secondary);
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 3px 8px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px var(--shadow-color);
+      z-index: 5;
+      white-space: nowrap;
+    }
+    
+    /* Ajustes para mobile */
+    @media (max-width: 768px) {
+      .bar-chart {
+        padding-left: 0;
+        margin-bottom: 60px;
+        height: 220px;
+      }
+      
+      .bar-chart-container {
+        height: 180px;
+      }
+      
+      .chart-box {
+        padding: 15px 10px;
+        margin-bottom: 25px;
+      }
+      
+      .chart-title {
+        font-size: 16px !important;
+        text-align: center;
+      }
+      
+      .bar {
+        flex: 0 0 45px;
+        margin: 0 12px;
+        min-width: 35px;
+        max-width: 45px;
+      }
+      
+      .recent-activity {
+        padding: 15px 10px;
+        margin-bottom: 25px;
+      }
+      
+      .data-table th, .data-table td {
+        padding: 10px;
+      }
+      
+      .data-table th {
+        font-size: 14px;
+      }
+      
+      .scroll-indicator {
+        font-size: 10px;
+        bottom: -20px;
+      }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .dashboard-container {
+      display: none;
+    }
+    
+    .dashboard-controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 15px;
+    }
+
+    .filter-container {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filter-container label {
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .periodo-select, .data-input {
+      padding: 8px 12px;
+      border-radius: 5px;
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-size: 14px;
+      box-shadow: 0 2px 4px var(--shadow-color);
+      transition: all 0.3s ease;
+    }
+
+    .periodo-select:focus, .data-input:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+    }
+
+    .datas-personalizado {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 5px;
+    }
+
+    .datas-personalizado.hidden {
+      display: none;
+    }
+
+    .apply-btn {
+      padding: 8px 15px;
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .apply-btn:hover {
+      background: linear-gradient(135deg, #0d47a1, #1976d2);
+      transform: translateY(-2px);
+    }
+    
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    /* Estilos para tooltips nos gráficos */
+    .tooltip {
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      max-width: 200px;
+      text-align: center;
+      transform: translateY(10px);
+      will-change: transform;
+    }
+    
+    .tooltip.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .tooltip:after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background-color: rgba(0, 0, 0, 0.8);
+      transform: rotate(45deg);
+      left: -4px; /* Padrão para tooltip à direita do cursor */
+      top: calc(50% - 4px);
+    }
+    
+    .tooltip.left-position:after {
+      left: auto;
+      right: -4px; /* Para tooltip à esquerda do cursor */
+    }
+    
+    .bar {
+      flex: 0 0 60px; /* Largura fixa maior */
+      margin: 0 20px; /* Mais espaço entre as barras */
+      background: linear-gradient(to top, var(--primary-light), #64b5f6);
+      min-width: 40px; /* Garantindo largura mínima */
+      max-width: 60px; /* Limitando largura máxima */
+      border-radius: 5px 5px 0 0;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    
+    .bar:hover {
+      transform: translateY(-5px);
+    }
+
+    .dashboard-controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 15px;
+    }
+    
+    .control-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .filter-container {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .export-btn {
+      background: linear-gradient(145deg, #2e7d32, #4caf50);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+    }
+    
+    .export-btn:hover {
+      background: linear-gradient(145deg, #1b5e20, #388e3c);
+      transform: translateY(-2px);
+    }
+    
+    .export-btn:before {
+      content: "📄";
+      margin-right: 8px;
+    }
+    
+    .refresh-btn {
+      background: linear-gradient(145deg, #1976d2, #64b5f6);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 0;
+      display: flex;
+      align-items: center;
+    }
+    
+    .refresh-btn:before {
+      content: "🔄";
+      margin-right: 8px;
+    }
+
+    /* Estilos para indicadores de carregamento */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      color: white;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 4px solid white;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .models-empty, .models-error {
+      text-align: center;
+      padding: 30px;
+      color: var(--text-muted);
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      border: 1px dashed var(--border-color);
+    }
+    
+    .models-error {
+      color: #e74c3c;
+      border-color: #e74c3c;
+    }
+
+    /* Estilos para notificações e alertas */
+    .notification {
+      position: fixed;
+      top: -100px;
+      right: 30px;
+      min-width: 300px;
+      max-width: 500px;
+      background: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      z-index: 9999;
+      transform: translateY(-20px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      border-left: 5px solid var(--primary-color);
+    }
+    
+    .notification.success {
+      border-left-color: #2ecc71;
+    }
+    
+    .notification.error {
+      border-left-color: #e74c3c;
+    }
+    
+    .notification.warning {
+      border-left-color: #f39c12;
+    }
+    
+    .notification.info {
+      border-left-color: var(--primary-color);
+    }
+    
+    .notification.show {
+      opacity: 1;
+      top: 30px;
+      transform: translateY(0);
+    }
+    
+    .notification-icon {
+      font-size: 24px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .notification.success .notification-icon {
+      background-color: rgba(46, 204, 113, 0.2);
+      color: #2ecc71;
+    }
+    
+    .notification.error .notification-icon {
+      background-color: rgba(231, 76, 60, 0.2);
+      color: #e74c3c;
+    }
+    
+    .notification.warning .notification-icon {
+      background-color: rgba(243, 156, 18, 0.2);
+      color: #f39c12;
+    }
+    
+    .notification.info .notification-icon {
+      background-color: rgba(52, 152, 219, 0.2);
+      color: var(--primary-color);
+    }
+    
+    .notification-content {
+      flex: 1;
+    }
+    
+    .notification-title {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--text-color);
+    }
+    
+    .notification-message {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    
+    .notification-close {
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 5px;
+      transition: all 0.2s;
+    }
+    
+    .notification-close:hover {
+      color: var(--text-color);
+    }
+    
+    .notification-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    .notification-progress-bar {
+      height: 100%;
+      width: 100%;
+      background-color: var(--primary-light);
+      transform-origin: left;
+      animation: progress 5s linear forwards;
+    }
+    
+    .notification.success .notification-progress-bar {
+      background-color: #2ecc71;
+    }
+    
+    .notification.error .notification-progress-bar {
+      background-color: #e74c3c;
+    }
+    
+    .notification.warning .notification-progress-bar {
+      background-color: #f39c12;
+    }
+    
+    @keyframes progress {
+      0% { transform: scaleX(1); }
+      100% { transform: scaleX(0); }
+    }
+    
+    /* Estilo para a mensagem de erro nos modelos */
+    .models-error {
+      text-align: center;
+      padding: 30px;
+      border-radius: 8px;
+      background-color: rgba(231, 76, 60, 0.1);
+      border: 1px solid rgba(231, 76, 60, 0.3);
+      color: #e74c3c;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .models-error i {
+      font-size: 40px;
+      color: #e74c3c;
+    }
+    
+    .models-error p {
+      margin: 0;
+      font-size: 15px;
+    }
+    
+    .models-error .retry-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+      margin-top: 10px;
+    }
+    
+    .models-error .retry-btn:hover {
+      background-color: #c0392b;
+      transform: translateY(-2px);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .models-empty {
+      text-align: center;
+      padding: 40px 30px;
+      border-radius: 8px;
+      background-color: rgba(52, 152, 219, 0.05);
+      border: 1px dashed var(--border-color);
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .models-empty i {
+      font-size: 40px;
+      color: var(--text-muted);
+    }
+    
+    .models-empty p {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    /* Estilos para modal de confirmação personalizado */
+    .custom-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .custom-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .custom-modal-content {
+      width: 90%;
+      max-width: 450px;
+      background-color: var(--card-bg);
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      transform: translateY(-30px);
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+    
+    .custom-modal.active .custom-modal-content {
+      transform: translateY(0);
+    }
+    
+    .custom-modal-header {
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .custom-modal-header h3 {
+      margin: 0;
+      color: var(--text-color);
+      font-size: 18px;
+    }
+    
+    .custom-modal-close {
+      cursor: pointer;
+      font-size: 24px;
+      color: var(--text-muted);
+      line-height: 1;
+      transition: all 0.2s;
+    }
+    
+    .custom-modal-close:hover {
+      color: var(--text-color);
+    }
+    
+    .custom-modal-body {
+      padding: 20px;
+      color: var(--text-color);
+    }
+    
+    .custom-modal-body p {
+      margin: 0 0 10px;
+    }
+    
+    .custom-modal-body .warning-text {
+      color: #e74c3c;
+      font-weight: 500;
+    }
+    
+    .custom-modal-footer {
+      padding: 15px 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .custom-modal-footer button {
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+      border: none;
+    }
+    
+    .custom-modal-footer .btn-cancel {
+      background-color: var(--button-secondary-bg);
+      color: var(--text-color);
+    }
+    
+    .custom-modal-footer .btn-confirm {
+      background-color: #e74c3c;
+      color: white;
+    }
+    
+    .custom-modal-footer .btn-cancel:hover {
+      background-color: #dddfe2;
+    }
+    
+    .custom-modal-footer .btn-confirm:hover {
+      background-color: #c0392b;
+    }
+
+    /* Estilo para o botão fixo de atualização */
+    .botao-fixo-atualizar {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #ff9800; 
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      border: none;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      z-index: 10000;
+      cursor: pointer;
+    }
+    .botao-fixo-atualizar:hover {
+      background-color: #f57c00;
+    }
+
+    /* Animação para o botão de atualizar */
+    @keyframes shine {
+      0% { left: -100%; }
+      50% { left: 100%; }
+      100% { left: 100%; }
+    }
+    
+    #btn-atualizar-documento:hover {
+      background-color: #e08600 !important;
+      transform: scale(1.03);
+      transition: all 0.2s ease;
+    }
+  </style>
+</head>
+<body class="login-bg">
+  <!-- TELA DE LOGIN -->
+  <div class="login-container" id="loginContainer">
+    <h1>Flow Easy</h1>
+    <div class="message error-message" id="errorMessage">
+      Email ou senha incorretos. Tente novamente.
+    </div>
+    <div class="message success-message" id="successMessage">
+      Login realizado com sucesso! Redirecionando...
+    </div>
+    <form id="loginForm">
+      <div class="input-group">
+        <input type="email" id="email" placeholder=" " required />
+        <label for="email">E-mail</label>
+      </div>
+      <div class="input-group">
+        <input type="password" id="password" placeholder=" " required />
+        <label for="password">Senha</label>
+      </div>
+      <button type="submit" class="login-btn">Entrar</button>
+    </form>
+  </div>
+
+  <!-- TELA DO MENU LATERAL -->
+  <div class="menu-container hidden" id="menuContainer">
+    <button id="mobileMenuToggle">☰</button>
+    <button id="themeToggle" class="theme-toggle">🌓</button>
+    <div class="menu-overlay" id="menuOverlay"></div>
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="logo">FLOW EASY</div>
+        <nav class="menu">
+          <a href="#" data-content="dashboard" class="active">&#128200; Dashboard</a>
+          <a href="#" data-content="gerar-documentos">&#128196; Gerar documentos</a>
+          <a href="#" data-content="relatorios">&#128202; Relatórios</a>
+          <a href="#" data-content="modelos">&#128193; Modelos</a>
+        </nav>
+      </div>
+      <div class="sidebar-footer">
+        <div class="user-info" id="userInfoContainer">
+          <div class="user-avatar" id="userAvatar">U</div>
+          <div class="user-details">
+            <div class="user-name" id="userNameDisplay">Usuário</div>
+            <div class="user-role" id="userRoleDisplay">Cargo</div>
+          </div>
+        </div>
+        <button class="logout-btn" id="logoutButton">&#128682; Sair</button>
+      </div>
+    </div>
+    <div class="main-content" id="mainContent">
+      <h1>Bem-vindo ao Flow Easy</h1>
+      <p>Selecione uma opção no menu lateral para começar.</p>
+    </div>
+  </div>
+
+  <script>
+    // Referências aos elementos
+    const loginContainer = document.getElementById('loginContainer');
+    const menuContainer = document.getElementById('menuContainer');
+    const mainContent = document.getElementById('mainContent');
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+    const sidebar = document.getElementById('sidebar');
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const menuOverlay = document.getElementById('menuOverlay');
+    const themeToggle = document.getElementById('themeToggle');
+
+    // Configuração de URLs de webhook do n8n
+    const n8nWebhooks = {
+      cpfConsulta: 'https://app.floweasysetup.com.br/webhook/cpf-consulta', // Webhook para consulta de CPF
+      documentoGerar: 'https://app.floweasysetup.com.br/webhook/documento-gerar', // Webhook para gerar documento
+      autenticacao: 'https://app.floweasysetup.com.br/webhook/autenticar', // Webhook para autenticação
+      dashboard: 'https://app.floweasysetup.com.br/webhook/dashboard', // Webhook para dados do dashboard
+      modelos: 'https://app.floweasysetup.com.br/webhook/modelos' // Webhook para gerenciamento de modelos
+    };
+
+    // Controle do Tema (Claro/Escuro)
+    function setupThemeToggle() {
+      // Verificar preferência do usuário no localStorage
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.textContent = '☀️'; // Emoji de sol para mudar para tema claro
+      } else {
+        themeToggle.textContent = '🌓'; // Emoji de lua para mudar para tema escuro
+      }
+
+      // Configurar evento para alternar o tema
+      themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        let newTheme;
+        
+        if (currentTheme === 'dark') {
+          newTheme = 'light';
+          themeToggle.textContent = '🌓';
+          document.documentElement.removeAttribute('data-theme');
+        } else {
+          newTheme = 'dark';
+          themeToggle.textContent = '☀️';
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+        
+        // Salvar preferência no localStorage
+        localStorage.setItem('theme', newTheme);
+      });
+    }
+
+    // Adicionar controles para o menu mobile
+    function setupMobileMenu() {
+      // Toggle menu quando clica no botão
+      mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+      
+      // Fechar menu quando clica no overlay
+      menuOverlay.addEventListener('click', closeMobileMenu);
+      
+      // Fechar menu quando a janela é redimensionada para desktop
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 992) {
+          closeMobileMenu();
+        }
+      });
+      
+      // Fechar menu quando clica em um link do menu (em mobile)
+      document.querySelectorAll('.menu a').forEach(link => {
+        link.addEventListener('click', function() {
+          if (window.innerWidth <= 992) {
+            closeMobileMenu();
+          }
+        });
+      });
+    }
+    
+    // Função para alternar a visibilidade do menu mobile
+    function toggleMobileMenu() {
+      sidebar.classList.toggle('active');
+      menuOverlay.classList.toggle('active');
+      document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+    }
+    
+    // Função para fechar o menu mobile
+    function closeMobileMenu() {
+      sidebar.classList.remove('active');
+      menuOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Conteúdos das páginas (usando strings em uma linha)
+    const pages = {
+      'dashboard': `
+        <h1>Dashboard</h1>
+        <p>Bem-vindo ao Dashboard! Aqui você pode ver um resumo geral.</p>
+        
+        <div id="dashboard-loading" style="text-align: center; padding: 40px;">
+          <p style="margin-bottom: 15px;">Carregando dados do dashboard...</p>
+          <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        </div>
+        
+        <style>
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          
+          .dashboard-container {
+            display: none;
+          }
+          
+          .dashboard-controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+          }
+
+          .filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+          }
+
+          .filter-container label {
+            font-weight: 600;
+            color: var(--primary-color);
+          }
+
+          .periodo-select, .data-input {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 14px;
+            box-shadow: 0 2px 4px var(--shadow-color);
+            transition: all 0.3s ease;
+          }
+
+          .periodo-select:focus, .data-input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+          }
+
+          .datas-personalizado {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+          }
+
+          .datas-personalizado.hidden {
+            display: none;
+          }
+
+          .apply-btn {
+            padding: 8px 15px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+          }
+
+          .apply-btn:hover {
+            background: linear-gradient(135deg, #0d47a1, #1976d2);
+            transform: translateY(-2px);
+          }
+          
+          .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+          }
+          
+          .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            text-align: center;
+            transition: transform 0.3s ease;
+          }
+          
+          .stat-card:hover {
+            transform: translateY(-5px);
+          }
+          
+          .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #0c3c82;
+            margin: 10px 0;
+          }
+          
+          .stat-label {
+            color: #666;
+            font-size: 14px;
+          }
+          
+          .chart-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+          }
+          
+          .chart-box {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+          }
+          
+          .chart-title {
+            font-size: 18px;
+            color: #0c3c82;
+            margin-bottom: 15px;
+            font-weight: 600;
+          }
+          
+          .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+          }
+          
+          .data-table th, .data-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+          }
+          
+          .data-table th {
+            font-weight: 600;
+            color: #0c3c82;
+          }
+          
+          .data-table tr:hover {
+            background-color: #f8f9fa;
+          }
+          
+          .bar-chart {
+            display: flex;
+            height: 200px;
+            align-items: flex-end;
+            margin-top: 40px;
+            margin-bottom: 40px;
+            padding-left: 40px;
+            padding-right: 20px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+          }
+          
+          .bar {
+            flex: 1;
+            margin: 0 15px;
+            background: linear-gradient(to top, var(--primary-light), #64b5f6);
+            min-width: 20px;
+            max-width: 60px;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 5px 5px 0 0;
+            position: relative;
+          }
+          
+          .bar:after {
+            content: attr(data-value);
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            white-space: nowrap;
+            color: var(--text-color);
+            text-align: center;
+          }
+          
+          .bar:before {
+            content: attr(data-label);
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-15deg);
+            font-size: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 65px;
+            color: var(--text-color);
+            text-align: center;
+          }
+          
+          .chart-box {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+          }
+          
+          .recent-activity {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-top: 10px;
+            margin-bottom: 30px;
+          }
+        </style>
+        
+        <div id="dashboard-container" class="dashboard-container">
+          <div class="dashboard-controls">
+            <div class="control-group">
+              <button id="refresh-dashboard" class="refresh-btn">Atualizar Dashboard</button>
+              <button id="export-pdf" class="export-btn">Exportar PDF</button>
+            </div>
+            <div class="filter-container">
+              <label for="periodo-filtro">Filtrar por período:</label>
+              <select id="periodo-filtro" class="periodo-select">
+                <option value="todos">Todos os períodos</option>
+                <option value="7dias">Últimos 7 dias</option>
+                <option value="30dias">Últimos 30 dias</option>
+                <option value="90dias">Último trimestre</option>
+                <option value="365dias">Último ano</option>
+                <option value="personalizado">Período personalizado</option>
+              </select>
+              <div id="datas-personalizado" class="datas-personalizado hidden">
+                <input type="date" id="data-inicio" class="data-input" placeholder="Data inicial">
+                <input type="date" id="data-fim" class="data-input" placeholder="Data final">
+                <button id="aplicar-datas" class="apply-btn">Aplicar</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stats-cards">
+            <div class="stat-card">
+              <div class="stat-value" id="total-documentos">0</div>
+              <div class="stat-label">Total de Documentos</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="total-usuarios">0</div>
+              <div class="stat-label">Usuários Ativos</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="total-consultas">0</div>
+              <div class="stat-label">Consultas CPF</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="media-diaria">0</div>
+              <div class="stat-label">Média Diária</div>
+            </div>
+          </div>
+          
+          <div class="chart-container">
+            <div class="chart-box">
+              <div class="chart-title">Documentos por Status</div>
+              <div id="status-chart" class="bar-chart"></div>
+            </div>
+            <div class="chart-box">
+              <div class="chart-title">Documentos por Tipo</div>
+              <div id="tipo-chart" class="bar-chart"></div>
+            </div>
+          </div>
+          
+          <div class="chart-box">
+            <div class="chart-title">Documentos por Mês</div>
+            <div id="mes-chart" class="bar-chart"></div>
+          </div>
+          
+          <div class="recent-activity">
+            <div class="chart-title">Usuários mais Ativos</div>
+            <div class="data-table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Documentos Gerados</th>
+                  </tr>
+                </thead>
+                <tbody id="usuarios-ativos-tbody">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `,
+      'gerar-documentos': ""
+        + "<h1>Gerar Documentos</h1>"
+        + "<p>Aqui você pode gerar documentos personalizados para seus clientes. "
+        + "Escolha uma das rotas abaixo para preencher automaticamente o documento.</p>"
+        + "<div class='button-grid'>"
+          + "<button class='route-btn' data-route='rota1'>Termos Gerais</button>"
+          + "<button class='route-btn' data-route='rota2'>Rota 2</button>"
+          + "<button class='route-btn' data-route='rota3'>Rota 3</button>"
+          + "<button class='route-btn' data-route='rota4'>Rota 4</button>"
+          + "<button class='route-btn' data-route='rota5'>Rota 5</button>"
+          + "<button class='route-btn' data-route='rota6'>Rota 6</button>"
+          + "<button class='route-btn' data-route='rota7'>Rota 7</button>"
+          + "<button class='route-btn' data-route='rota8'>Rota 8</button>"
+        + "</div>"
+        /* Área para exibir dados da pessoa */
+        + "<div id='pessoaDadosContainer' style='display: none; margin: 30px 0; padding: 20px; background-color: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);'>"
+          + "<h2 style='color: #0c3c82; margin-bottom: 15px;'>Dados da Pessoa</h2>"
+          + "<div id='pessoaDados'></div>"
+          + "<div style='display: flex; justify-content: space-between; margin-top: 20px;'>"
+            + "<button id='preencherDocumentoBtn' class='popup-btn popup-btn-primary'>Preencher Documento</button>"
+            + "<button id='novaPesquisaBtn' class='popup-btn popup-btn-secondary'>Nova Consulta</button>"
+          + "</div>"
+        + "</div>"
+        /* Área para exibir o documento gerado */
+        + "<div id='documentoGeradoContainer' style='display: none; margin: 30px 0; padding: 20px; background-color: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);'>"
+          + "<h2 style='color: #0c3c82; margin-bottom: 15px;'>Documento Gerado</h2>"
+          + "<div id='documentoAcoesContainer' style='display: flex; justify-content: space-between; margin-bottom: 15px;'>"
+            + "<div>"
+              + "<span id='statusDocumento' style='font-weight: bold; color: #4caf50;'>Gerado com sucesso</span>"
+            + "</div>"
+            + "<div>"
+              + "<button id='gerarAssinaturaBtn' class='popup-btn popup-btn-primary' style='margin-right: 10px; background: linear-gradient(135deg, #2e7d32, #4caf50);'>Gerar Assinatura Digital</button>"
+              + "<button id='abrirNovaAbaBtn' class='popup-btn popup-btn-secondary' style='margin-right: 10px;'>Abrir em Nova Aba</button>"
+              + "<button id='voltarBtn' class='popup-btn popup-btn-primary'>Voltar</button>"
+            + "</div>"
+          + "</div>"
+          + "<div id='documentoInfoContainer' style='background-color: #f5f9ff; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #0c3c82;'>"
+            + "<div style='display: flex; flex-wrap: wrap; gap: 20px;'>"
+              + "<div style='flex: 1; min-width: 250px;'>"
+                + "<h3 style='font-size: 16px; margin-bottom: 10px; color: #0c3c82;'>Detalhes do Documento</h3>"
+                + "<p><strong>Nome do arquivo:</strong> <span id='documentoNome'>documento.pdf</span></p>"
+                + "<p><strong>Tipo:</strong> <span id='documentoTipo'>Documento</span></p>"
+                + "<p><strong>Gerado em:</strong> <span id='documentoData'></span></p>"
+              + "</div>"
+              + "<div style='flex: 1; min-width: 250px;'>"
+                + "<h3 style='font-size: 16px; margin-bottom: 10px; color: #0c3c82;'>Dados do Cliente</h3>"
+                + "<p><strong>Nome:</strong> <span id='clienteNome'>-</span></p>"
+                + "<p><strong>CPF:</strong> <span id='clienteCpf'>-</span></p>"
+                + "<p><strong>Endereço:</strong> <span id='clienteEndereco'>-</span></p>"
+              + "</div>"
+            + "</div>"
+          + "</div>"
+          + "<div id='documentoPreviewContainer' style='width: 100%; height: 700px; border: 1px solid #e0e0e0; border-radius: 5px; overflow: hidden;'>"
+            + "<iframe id='documentoIframe' style='width: 100%; height: 100%; border: none;'></iframe>"
+          + "</div>"
+        + "</div>"
+        /* Adicionando os popups */
+        + "<div class='popup-overlay' id='cpfPopup'>"
+          + "<div class='popup-content'>"
+            + "<div class='popup-title'>Digite o CPF para consultar</div>"
+            + "<input type='text' class='popup-input' id='cpfInput' placeholder='Ex: 000.000.000-00'>"
+            + "<div class='popup-buttons'>"
+              + "<button class='popup-btn popup-btn-primary' id='submitCpfBtn'>Consultar</button>"
+              + "<button class='popup-btn popup-btn-secondary' id='cancelCpfBtn'>Cancelar</button>"
+            + "</div>"
+          + "</div>"
+        + "</div>"
+        + "<div class='popup-overlay' id='confirmPopup'>"
+          + "<div class='popup-content'>"
+            + "<div class='popup-title'>Deseja preencher o documento automaticamente?</div>"
+            + "<p style='margin-bottom: 15px;'>O documento será preenchido com os dados da pessoa consultada e salvo no sistema.</p>"
+            + "<div class='popup-buttons'>"
+              + "<button class='popup-btn popup-btn-primary' id='confirmYesBtn'>Sim</button>"
+              + "<button class='popup-btn popup-btn-secondary' id='confirmNoBtn'>Não</button>"
+            + "</div>"
+          + "</div>"
+        + "</div>"
+        /* Adicionando aviso personalizado */
+        + "<div class='popup-overlay' id='avisoPopup'>"
+          + "<div class='popup-content'>"
+            + "<div style='text-align: center; margin-bottom: 15px;'>"
+              + "<i style='font-size: 48px; color: #e74c3c;'>&#9888;</i>"
+            + "</div>"
+            + "<div class='popup-title' id='avisoTitulo'>Informação</div>"
+            + "<p style='margin-bottom: 15px; text-align: center;' id='avisoMensagem'>Mensagem de aviso aqui.</p>"
+            + "<div class='popup-buttons' style='justify-content: center;'>"
+              + "<button class='popup-btn popup-btn-primary' id='avisoOkBtn'>OK</button>"
+            + "</div>"
+          + "</div>"
+        + "</div>",
+      'relatorios': "<h1>Relatórios</h1><p>Visualize aqui relatórios de uso, desempenho e muito mais.</p>",
+      'modelos': `<h1>Modelos de Documentos</h1>
+        <p>Gerencie seus modelos de documentos para preenchimento automático.</p>
+        
+        <div class="models-container">
+          <div class="models-upload-section">
+            <h2>Enviar Novo Modelo</h2>
+            <form id="uploadModelForm" class="upload-form">
+              <div class="form-group">
+                <label for="modelName">Nome do Modelo</label>
+                <input type="text" id="modelName" name="modelName" placeholder="Ex: Contrato de Prestação de Serviços" required>
+              </div>
+              <div class="form-group">
+                <label for="modelDescription">Descrição (opcional)</label>
+                <textarea id="modelDescription" name="modelDescription" placeholder="Descreva para que serve este modelo"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="modelFile">Arquivo PDF</label>
+                <input type="file" id="modelFile" name="modelFile" accept=".pdf" required>
+                <div class="file-info">Apenas arquivos PDF são aceitos. Tamanho máximo: 10MB</div>
+              </div>
+              <div class="form-group">
+                <label for="modelCategory">Categoria</label>
+                <select id="modelCategory" name="modelCategory">
+                  <option value="contrato">Contrato</option>
+                  <option value="termo">Termo</option>
+                  <option value="declaracao">Declaração</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+              <button type="submit" class="btn-primary" id="uploadModelBtn">Enviar Modelo</button>
+            </form>
+          </div>
+          
+          <div class="models-list-section">
+            <h2>Modelos Disponíveis</h2>
+            <div class="models-filter">
+              <input type="text" id="modelSearch" placeholder="Buscar modelo...">
+              <select id="filterCategory">
+                <option value="">Todas as categorias</option>
+                <option value="contrato">Contratos</option>
+                <option value="termo">Termos</option>
+                <option value="declaracao">Declarações</option>
+                <option value="outro">Outros</option>
+              </select>
+            </div>
+            
+            <div id="modelsList" class="models-grid">
+              <div class="models-loading">
+                <p>Carregando modelos...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <style>
+          .models-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+          }
+          
+          .models-upload-section, .models-list-section {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px var(--shadow-color);
+          }
+          
+          .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+          }
+          
+          .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+          }
+          
+          .form-group label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: var(--text-color);
+          }
+          
+          .form-group input[type="text"],
+          .form-group select,
+          .form-group textarea {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+          }
+          
+          .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+          }
+          
+          .file-info {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 5px;
+          }
+          
+          .models-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+          }
+          
+          .models-filter input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+          }
+          
+          .models-filter select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+          }
+          
+          .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+          }
+          
+          .model-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            background-color: var(--card-bg);
+            transition: all 0.3s ease;
+            position: relative;
+          }
+          
+          .model-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px var(--shadow-color);
+          }
+          
+          .model-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+          }
+          
+          .model-description {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+          
+          .model-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 10px;
+          }
+          
+          .model-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+          }
+          
+          .model-actions button {
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            background-color: var(--button-secondary-bg);
+            color: var(--button-secondary-text);
+            border: none;
+            cursor: pointer;
+          }
+          
+          .model-actions button.download {
+            background-color: var(--primary-color);
+            color: white;
+          }
+          
+          .models-loading {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+          }
+          
+          @media (max-width: 992px) {
+            .models-container {
+              grid-template-columns: 1fr;
+            }
+          }
+        </style>`
+    };
+
+    // Clique nos links do menu
+    const menuLinks = document.querySelectorAll('.menu a');
+    menuLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Remover classe active de todos os links
+        menuLinks.forEach(l => l.classList.remove('active'));
+        // Adicionar classe active ao link clicado
+        link.classList.add('active');
+        
+        const contentKey = link.getAttribute('data-content');
+        if (pages[contentKey]) {
+          mainContent.innerHTML = pages[contentKey];
+          // Se for gerar-documentos, configura os botões
+          if (contentKey === 'gerar-documentos') {
+            setTimeout(setupGerarDocumentosLogic, 50);
+          } else if (contentKey === 'dashboard') {
+            setTimeout(setupDashboardLogic, 50);
+          } else if (contentKey === 'modelos') {
+            setTimeout(setupModelosLogic, 50);
+          }
+        } else {
+          mainContent.innerHTML = "<h1>Página não encontrada</h1><p>O conteúdo não existe.</p>";
+        }
+      });
+    });
+
+    // Função para configurar e carregar o Dashboard
+    async function setupDashboardLogic() {
+      const dashboardLoading = document.getElementById('dashboard-loading');
+      const dashboardContainer = document.getElementById('dashboard-container');
+      const refreshBtn = document.getElementById('refresh-dashboard');
+      const periodoSelect = document.getElementById('periodo-filtro');
+      const datasPersonalizado = document.getElementById('datas-personalizado');
+      const dataInicio = document.getElementById('data-inicio');
+      const dataFim = document.getElementById('data-fim');
+      const aplicarDatasBtn = document.getElementById('aplicar-datas');
+      const exportPdfBtn = document.getElementById('export-pdf');
+      
+      let filtroAtual = 'todos';
+      let dataInicioAtual = null;
+      let dataFimAtual = null;
+      
+      if (!refreshBtn) return; // Se não encontrar os elementos, não faz nada
+      
+      // Configurar evento de mudança do select de período
+      periodoSelect.addEventListener('change', function() {
+        const valor = this.value;
+        
+        // Mostrar/esconder seção de datas personalizadas
+        if (valor === 'personalizado') {
+          datasPersonalizado.classList.remove('hidden');
+        } else {
+          datasPersonalizado.classList.add('hidden');
+          filtroAtual = valor;
+          loadDashboardData();
+        }
+      });
+      
+      // Configurar evento do botão aplicar datas
+      aplicarDatasBtn.addEventListener('click', function() {
+        if (!dataInicio.value || !dataFim.value) {
+          alert('Por favor, informe data inicial e final para o filtro.');
+          return;
+        }
+        
+        dataInicioAtual = dataInicio.value;
+        dataFimAtual = dataFim.value;
+        filtroAtual = 'personalizado';
+        loadDashboardData();
+      });
+      
+      // Configurar evento do botão exportar PDF
+      exportPdfBtn.addEventListener('click', exportToPDF);
+      
+      // Função para exportar o dashboard para PDF
+      async function exportToPDF() {
+        try {
+          // Mostrar mensagem de loading
+          const exportStatus = document.createElement('div');
+          exportStatus.className = 'export-status';
+          exportStatus.textContent = 'Gerando PDF, aguarde...';
+          exportStatus.style.position = 'fixed';
+          exportStatus.style.top = '50%';
+          exportStatus.style.left = '50%';
+          exportStatus.style.transform = 'translate(-50%, -50%)';
+          exportStatus.style.padding = '15px 20px';
+          exportStatus.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+          exportStatus.style.color = 'white';
+          exportStatus.style.borderRadius = '5px';
+          exportStatus.style.zIndex = '9999';
+          document.body.appendChild(exportStatus);
+          
+          // Precisamos esperar um pouco para garantir que o DOM esteja atualizado
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+          // Capturar cada seção do dashboard separadamente para melhor qualidade
+          const dashContent = document.getElementById('dashboard-container');
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF('p', 'mm', 'a4');
+          const width = doc.internal.pageSize.getWidth();
+          const height = doc.internal.pageSize.getHeight();
+          
+          // Adicionar título
+          doc.setFontSize(20);
+          doc.setTextColor(12, 60, 130); // Cor primária
+          doc.text('Relatório Dashboard Flow Easy', width / 2, 15, { align: 'center' });
+          
+          // Adicionar data do relatório
+          doc.setFontSize(10);
+          doc.setTextColor(100, 100, 100);
+          const hoje = new Date().toLocaleDateString('pt-BR');
+          doc.text(`Gerado em: ${hoje}`, width / 2, 22, { align: 'center' });
+          
+          // Adicionar informações do período
+          doc.setFontSize(11);
+          let periodoInfo = '';
+          switch (filtroAtual) {
+            case 'todos':
+              periodoInfo = 'Período: Todos os dados';
+              break;
+            case '7dias':
+              periodoInfo = 'Período: Últimos 7 dias';
+              break;
+            case '30dias':
+              periodoInfo = 'Período: Últimos 30 dias';
+              break;
+            case '90dias':
+              periodoInfo = 'Período: Último trimestre';
+              break;
+            case '365dias':
+              periodoInfo = 'Período: Último ano';
+              break;
+            case 'personalizado':
+              const inicio = new Date(dataInicioAtual).toLocaleDateString('pt-BR');
+              const fim = new Date(dataFimAtual).toLocaleDateString('pt-BR');
+              periodoInfo = `Período: ${inicio} a ${fim}`;
+              break;
+          }
+          doc.text(periodoInfo, width / 2, 30, { align: 'center' });
+          
+          // Capturar os cards de estatísticas
+          const statsCards = document.querySelector('.stats-cards');
+          const statsCanvas = await html2canvas(statsCards, { scale: 2 });
+          const statsImgData = statsCanvas.toDataURL('image/png');
+          
+          // Adicionar os cards de estatísticas ao PDF
+          doc.text('Resumo Estatístico', 14, 40);
+          const statsImgWidth = width - 28;
+          const statsImgHeight = (statsCanvas.height * statsImgWidth) / statsCanvas.width;
+          doc.addImage(statsImgData, 'PNG', 14, 43, statsImgWidth, statsImgHeight);
+          
+          // Definir posição Y para o próximo elemento
+          let currentY = 43 + statsImgHeight + 10;
+          
+          // Verificar se precisa adicionar nova página
+          if (currentY > height - 40) {
+            doc.addPage();
+            currentY = 15;
+          }
+          
+          // Capturar o gráfico de documentos por status
+          try {
+            const statusChart = document.querySelector('.chart-box:nth-child(1)');
+            const statusCanvas = await html2canvas(statusChart, { scale: 2 });
+            const statusImgData = statusCanvas.toDataURL('image/png');
+            
+            // Adicionar o gráfico de status ao PDF
+            doc.text('Documentos por Status', 14, currentY);
+            const statusImgWidth = width - 28;
+            const statusImgHeight = (statusCanvas.height * statusImgWidth) / statusCanvas.width;
+            doc.addImage(statusImgData, 'PNG', 14, currentY + 3, statusImgWidth, statusImgHeight);
+            
+            // Atualizar posição Y
+            currentY += statusImgHeight + 13;
+            
+            // Verificar se precisa adicionar nova página
+            if (currentY > height - 40) {
+              doc.addPage();
+              currentY = 15;
+            }
+          } catch (error) {
+            console.error('Erro ao capturar gráfico de status:', error);
+          }
+          
+          // Capturar o gráfico de documentos por tipo
+          try {
+            const tipoChart = document.querySelector('.chart-box:nth-child(2)');
+            const tipoCanvas = await html2canvas(tipoChart, { scale: 2 });
+            const tipoImgData = tipoCanvas.toDataURL('image/png');
+            
+            // Adicionar o gráfico de tipo ao PDF
+            doc.text('Documentos por Tipo', 14, currentY);
+            const tipoImgWidth = width - 28;
+            const tipoImgHeight = (tipoCanvas.height * tipoImgWidth) / tipoCanvas.width;
+            doc.addImage(tipoImgData, 'PNG', 14, currentY + 3, tipoImgWidth, tipoImgHeight);
+            
+            // Atualizar posição Y
+            currentY += tipoImgHeight + 13;
+            
+            // Verificar se precisa adicionar nova página
+            if (currentY > height - 40) {
+              doc.addPage();
+              currentY = 15;
+            }
+          } catch (error) {
+            console.error('Erro ao capturar gráfico de tipo:', error);
+          }
+          
+          // Capturar o gráfico de documentos por mês
+          try {
+            const mesChart = document.querySelector('.chart-box:nth-child(3)');
+            const mesCanvas = await html2canvas(mesChart, { scale: 2 });
+            const mesImgData = mesCanvas.toDataURL('image/png');
+            
+            // Adicionar o gráfico de mês ao PDF
+            doc.text('Documentos por Mês', 14, currentY);
+            const mesImgWidth = width - 28;
+            const mesImgHeight = (mesCanvas.height * mesImgWidth) / mesCanvas.width;
+            doc.addImage(mesImgData, 'PNG', 14, currentY + 3, mesImgWidth, mesImgHeight);
+            
+            // Atualizar posição Y
+            currentY += mesImgHeight + 13;
+            
+            // Verificar se precisa adicionar nova página
+            if (currentY > height - 40) {
+              doc.addPage();
+              currentY = 15;
+            }
+          } catch (error) {
+            console.error('Erro ao capturar gráfico de mês:', error);
+          }
+          
+          // Capturar a tabela de usuários mais ativos
+          try {
+            const usuariosTable = document.querySelector('.recent-activity');
+            const usuariosCanvas = await html2canvas(usuariosTable, { scale: 2 });
+            const usuariosImgData = usuariosCanvas.toDataURL('image/png');
+            
+            // Adicionar a tabela de usuários ao PDF
+            doc.text('Usuários mais Ativos', 14, currentY);
+            const usuariosImgWidth = width - 28;
+            const usuariosImgHeight = (usuariosCanvas.height * usuariosImgWidth) / usuariosCanvas.width;
+            doc.addImage(usuariosImgData, 'PNG', 14, currentY + 3, usuariosImgWidth, usuariosImgHeight);
+          } catch (error) {
+            console.error('Erro ao capturar tabela de usuários:', error);
+          }
+          
+          // Adicionar rodapé com informações da empresa
+          doc.setFontSize(8);
+          doc.setTextColor(100, 100, 100);
+          doc.text('Flow Easy - Sistema de Gestão de Documentos', width / 2, height - 10, { align: 'center' });
+          doc.text(`Página 1 de ${doc.getNumberOfPages()}`, width - 20, height - 10);
+          
+          // Definir cabeçalho e rodapé para todas as páginas
+          for (let i = 2; i <= doc.getNumberOfPages(); i++) {
+            doc.setPage(i);
+            doc.setFontSize(10);
+            doc.setTextColor(12, 60, 130);
+            doc.text('Relatório Dashboard Flow Easy', width / 2, 10, { align: 'center' });
+            doc.setFontSize(8);
+            doc.setTextColor(100, 100, 100);
+            doc.text('Flow Easy - Sistema de Gestão de Documentos', width / 2, height - 10, { align: 'center' });
+            doc.text(`Página ${i} de ${doc.getNumberOfPages()}`, width - 20, height - 10);
+          }
+          
+          // Salvar o PDF
+          const dataAtual = new Date().toISOString().replace(/[:.]/g, '-');
+          doc.save(`dashboard-flow-easy-${dataAtual}.pdf`);
+          
+          // Remover mensagem de loading
+          document.body.removeChild(exportStatus);
+          
+        } catch (error) {
+          console.error('Erro ao exportar PDF:', error);
+          alert('Erro ao gerar o PDF. Tente novamente.');
+          
+          // Remover mensagem de loading se houver erro
+          const exportStatus = document.querySelector('.export-status');
+          if (exportStatus) {
+            document.body.removeChild(exportStatus);
+          }
+        }
+      }
+      
+      // Função para carregar os dados do dashboard
+      async function loadDashboardData() {
+        try {
+          dashboardLoading.style.display = 'block';
+          dashboardContainer.style.display = 'none';
+          
+          // Preparar parâmetros para a URL com base no filtro selecionado
+          let url = new URL(n8nWebhooks.dashboard);
+          
+          // Adicionar parâmetros de filtro à URL
+          if (filtroAtual !== 'todos') {
+            if (filtroAtual === 'personalizado' && dataInicioAtual && dataFimAtual) {
+              url.searchParams.append('data_inicio', dataInicioAtual);
+              url.searchParams.append('data_fim', dataFimAtual);
+            } else {
+              // Calcular datas com base no período selecionado
+              const hoje = new Date();
+              let dataInicio = new Date();
+              
+              switch (filtroAtual) {
+                case '7dias':
+                  dataInicio.setDate(hoje.getDate() - 7);
+                  break;
+                case '30dias':
+                  dataInicio.setDate(hoje.getDate() - 30);
+                  break;
+                case '90dias':
+                  dataInicio.setDate(hoje.getDate() - 90);
+                  break;
+                case '365dias':
+                  dataInicio.setDate(hoje.getDate() - 365);
+                  break;
+              }
+              
+              url.searchParams.append('data_inicio', dataInicio.toISOString().split('T')[0]);
+              url.searchParams.append('data_fim', hoje.toISOString().split('T')[0]);
+            }
+          }
+          
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Erro ao carregar dados: ${response.status}`);
+          }
+          
+          const rawData = await response.json();
+          console.log("Dados recebidos:", rawData);
+          
+          // Extrair os dados do array se vier como array
+          const responseData = Array.isArray(rawData) ? rawData[0] : rawData;
+          
+          // Verificar se temos dados válidos
+          if (!responseData || !responseData.data) {
+            throw new Error('Formato de dados inválido recebido do servidor');
+          }
+          
+          // Usamos diretamente os dados sem processamento adicional,
+          // já que eles já vêm no formato correto
+          const dashboardData = {
+            success: responseData.success || true,
+            data: responseData.data
+          };
+          
+          if (!dashboardData.success) {
+            throw new Error(dashboardData.message || 'Erro ao carregar dados do dashboard');
+          }
+          
+          updateDashboardUI(dashboardData.data);
+          dashboardLoading.style.display = 'none';
+          dashboardContainer.style.display = 'block';
+          
+          // Mostrar período filtrado no dashboard
+          const periodoInfo = document.createElement('div');
+          periodoInfo.className = 'periodo-info';
+          periodoInfo.innerHTML = getPeriodoInfoText();
+          
+          // Verificar se já existe um elemento de período info e removê-lo antes de adicionar o novo
+          const periodoInfoExistente = document.querySelector('.periodo-info');
+          if (periodoInfoExistente) {
+            periodoInfoExistente.remove();
+          }
+          
+          // Inserir após o controle de filtros
+          document.querySelector('.dashboard-controls').after(periodoInfo);
+          
+        } catch (error) {
+          console.error('Erro ao carregar dashboard:', error);
+          alert(`Não foi possível carregar o dashboard: ${error.message}`);
+          
+          // Mesmo com erro, esconde o loading e mostra o container com dados zerados
+          dashboardLoading.style.display = 'none';
+          dashboardContainer.style.display = 'block';
+        }
+      }
+      
+      // Função para obter o texto informativo do período filtrado
+      function getPeriodoInfoText() {
+        let textoInfo = '<p style="margin-bottom: 20px; font-style: italic; color: var(--text-secondary);">Exibindo dados ';
+        
+        switch (filtroAtual) {
+          case 'todos':
+            textoInfo += 'de todo o período';
+            break;
+          case '7dias':
+            textoInfo += 'dos últimos 7 dias';
+            break;
+          case '30dias':
+            textoInfo += 'dos últimos 30 dias';
+            break;
+          case '90dias':
+            textoInfo += 'do último trimestre';
+            break;
+          case '365dias':
+            textoInfo += 'do último ano';
+            break;
+          case 'personalizado':
+            const inicio = new Date(dataInicioAtual);
+            const fim = new Date(dataFimAtual);
+            textoInfo += `do período de ${inicio.toLocaleDateString('pt-BR')} a ${fim.toLocaleDateString('pt-BR')}`;
+            break;
+        }
+        
+        textoInfo += '</p>';
+        return textoInfo;
+      }
+      
+      // Função para processar o array bruto retornado pelo n8n
+      function processarDadosBrutos(dadosBrutos) {
+        // Se os dados vieram no formato esperado ou como null/undefined, retorna como está
+        if (!dadosBrutos || typeof dadosBrutos !== 'object') {
+          console.error('Dados inválidos recebidos:', dadosBrutos);
+          return {
+            resumo: {},
+            documentos_por_status: [],
+            documentos_por_tipo: [],
+            documentos_por_mes: [],
+            usuarios_ativos: []
+          };
+        }
+        
+        // Se já estiver no formato correto (com as propriedades esperadas), retorna diretamente
+        if (dadosBrutos.resumo && dadosBrutos.documentos_por_status && 
+            dadosBrutos.documentos_por_tipo && dadosBrutos.documentos_por_mes && 
+            dadosBrutos.usuarios_ativos) {
+          return dadosBrutos;
+        }
+        
+        // Se chegou aqui, precisa organizar os dados nas categorias corretas
+        console.log('Dados precisam ser processados:', dadosBrutos);
+        
+        // Inicializa estrutura de dados padrão
+        const resultado = {
+          resumo: {},
+          documentos_por_status: [],
+          documentos_por_tipo: [],
+          documentos_por_mes: [],
+          usuarios_ativos: []
+        };
+        
+        try {
+          // Se os dados estiverem em um array, tenta processar itens individuais
+          if (Array.isArray(dadosBrutos)) {
+            dadosBrutos.forEach(item => {
+              if (item.tipo_documento) {
+                resultado.documentos_por_tipo.push(item);
+              } else if (item.status) {
+                resultado.documentos_por_status.push(item);
+              } else if (item.total_documentos !== undefined) {
+                resultado.resumo = item;
+              } else if (item.mes) {
+                resultado.documentos_por_mes.push(item);
+              } else if (item.usuario) {
+                resultado.usuarios_ativos.push(item);
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Erro ao processar dados brutos:', error);
+        }
+        
+        return resultado;
+      }
+      
+      // Função para atualizar a UI do dashboard com os dados recebidos
+      function updateDashboardUI(data) {
+        // Atualizar os cartões com totais
+        document.getElementById('total-documentos').textContent = formatNumber(data.resumo.total_documentos || 0);
+        document.getElementById('total-usuarios').textContent = formatNumber(data.resumo.total_usuarios || 0);
+        document.getElementById('total-consultas').textContent = formatNumber(data.resumo.total_consultas || 0);
+        document.getElementById('media-diaria').textContent = formatNumber(data.resumo.media_diaria || 0, 1);
+        
+        // Criar tooltip para os gráficos se não existir
+        let tooltip = document.querySelector('.tooltip');
+        if (!tooltip) {
+          tooltip = document.createElement('div');
+          tooltip.className = 'tooltip';
+          document.body.appendChild(tooltip);
+        }
+        
+        // Gráfico de documentos por status
+        const statusChart = document.getElementById('status-chart');
+        statusChart.innerHTML = '';
+        
+        // Adicionar container para os gráficos
+        const statusContainer = document.createElement('div');
+        statusContainer.className = 'bar-chart-container';
+        statusChart.appendChild(statusContainer);
+        
+        // Adicionar indicador de rolagem se necessário
+        const statusScrollIndicator = document.createElement('div');
+        statusScrollIndicator.className = 'scroll-indicator';
+        statusScrollIndicator.textContent = '← Deslize para ver mais →';
+        statusChart.appendChild(statusScrollIndicator);
+        
+        if (data.documentos_por_status && data.documentos_por_status.length) {
+          const maxValue = Math.max(...data.documentos_por_status.map(item => item.quantidade));
+          data.documentos_por_status.forEach(status => {
+            const percent = (status.quantidade / maxValue) * 100;
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.height = `${percent}%`;
+            bar.setAttribute('data-value', formatNumber(status.quantidade));
+            bar.setAttribute('data-label', status.status);
+            bar.setAttribute('data-percent', `${Math.round(percent)}%`);
+            
+            // Adicionar eventos para tooltips
+            bar.addEventListener('mousemove', function(e) {
+              showTooltip(e, this, tooltip, data.resumo.total_documentos);
+            });
+            
+            bar.addEventListener('mouseleave', function() {
+              tooltip.classList.remove('show');
+            });
+            
+            // Suporte para eventos touch (mobile)
+            bar.addEventListener('touchstart', function(e) {
+              showTooltip(e, this, tooltip, data.resumo.total_documentos);
+              e.preventDefault(); // Prevenir scroll em dispositivos touch
+            });
+            
+            statusContainer.appendChild(bar);
+          });
+          
+          // Mostrar ou ocultar indicador de rolagem
+          setTimeout(() => {
+            statusScrollIndicator.style.display = statusContainer.scrollWidth > statusChart.clientWidth ? 'block' : 'none';
+          }, 100);
+        } else {
+          statusContainer.innerHTML = '<p style="text-align: center; padding: 20px; width: 100%;">Nenhum dado disponível</p>';
+          statusScrollIndicator.style.display = 'none';
+        }
+        
+        // Gráfico de documentos por tipo
+        const tipoChart = document.getElementById('tipo-chart');
+        tipoChart.innerHTML = '';
+        
+        // Adicionar container para os gráficos
+        const tipoContainer = document.createElement('div');
+        tipoContainer.className = 'bar-chart-container';
+        tipoChart.appendChild(tipoContainer);
+        
+        // Adicionar indicador de rolagem se necessário
+        const tipoScrollIndicator = document.createElement('div');
+        tipoScrollIndicator.className = 'scroll-indicator';
+        tipoScrollIndicator.textContent = '← Deslize para ver mais →';
+        tipoChart.appendChild(tipoScrollIndicator);
+        
+        if (data.documentos_por_tipo && data.documentos_por_tipo.length) {
+          const maxValue = Math.max(...data.documentos_por_tipo.map(item => item.quantidade));
+          data.documentos_por_tipo.forEach(tipo => {
+            const percent = (tipo.quantidade / maxValue) * 100;
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.height = `${percent}%`;
+            bar.setAttribute('data-value', formatNumber(tipo.quantidade));
+            bar.setAttribute('data-label', tipo.tipo_documento);
+            bar.setAttribute('data-percent', `${Math.round(percent)}%`);
+            
+            // Adicionar eventos para tooltips
+            bar.addEventListener('mousemove', function(e) {
+              showTooltip(e, this, tooltip, data.resumo.total_documentos);
+            });
+            
+            bar.addEventListener('mouseleave', function() {
+              tooltip.classList.remove('show');
+            });
+            
+            // Suporte para eventos touch (mobile)
+            bar.addEventListener('touchstart', function(e) {
+              showTooltip(e, this, tooltip, data.resumo.total_documentos);
+              e.preventDefault();
+            });
+            
+            tipoContainer.appendChild(bar);
+          });
+          
+          // Mostrar ou ocultar indicador de rolagem
+          setTimeout(() => {
+            tipoScrollIndicator.style.display = tipoContainer.scrollWidth > tipoChart.clientWidth ? 'block' : 'none';
+          }, 100);
+        } else {
+          tipoContainer.innerHTML = '<p style="text-align: center; padding: 20px; width: 100%;">Nenhum dado disponível</p>';
+          tipoScrollIndicator.style.display = 'none';
+        }
+        
+        // Gráfico de documentos por mês
+        const mesChart = document.getElementById('mes-chart');
+        mesChart.innerHTML = '';
+        
+        // Adicionar container para os gráficos
+        const mesContainer = document.createElement('div');
+        mesContainer.className = 'bar-chart-container';
+        mesChart.appendChild(mesContainer);
+        
+        // Adicionar indicador de rolagem se necessário
+        const mesScrollIndicator = document.createElement('div');
+        mesScrollIndicator.className = 'scroll-indicator';
+        mesScrollIndicator.textContent = '← Deslize para ver mais →';
+        mesChart.appendChild(mesScrollIndicator);
+        
+        if (data.documentos_por_mes && data.documentos_por_mes.length) {
+          const maxValue = Math.max(...data.documentos_por_mes.map(item => item.quantidade));
+          data.documentos_por_mes.forEach(mes => {
+            const percent = (mes.quantidade / maxValue) * 100;
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.height = `${percent}%`;
+            bar.setAttribute('data-value', formatNumber(mes.quantidade));
+            // Formatar o mês para exibição (ex: 2023-01 -> Jan/23)
+            const [ano, mesNum] = mes.mes.split('-');
+            const mesNomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const mesFormatado = `${mesNomes[parseInt(mesNum)-1]}/${ano.slice(2)}`;
+            bar.setAttribute('data-label', mesFormatado);
+            bar.setAttribute('data-percent', `${Math.round(percent)}%`);
+            bar.setAttribute('data-mes-completo', `${mesNomes[parseInt(mesNum)-1]} de ${ano}`);
+            
+            // Adicionar eventos para tooltips
+            bar.addEventListener('mousemove', function(e) {
+              showTooltip(e, this, tooltip, data.resumo.total_documentos);
+            });
+            
+            bar.addEventListener('mouseleave', function() {
+              tooltip.classList.remove('show');
+            });
+            
+            // Suporte para eventos touch (mobile)
+            bar.addEventListener('touchstart', function(e) {
+              showTooltip(e, this, tooltip, data.resumo.total_documentos);
+              e.preventDefault();
+            });
+            
+            mesContainer.appendChild(bar);
+          });
+          
+          // Mostrar ou ocultar indicador de rolagem
+          setTimeout(() => {
+            mesScrollIndicator.style.display = mesContainer.scrollWidth > mesChart.clientWidth ? 'block' : 'none';
+          }, 100);
+        } else {
+          mesContainer.innerHTML = '<p style="text-align: center; padding: 20px; width: 100%;">Nenhum dado disponível</p>';
+          mesScrollIndicator.style.display = 'none';
+        }
+        
+        // Função para exibir tooltip
+        function showTooltip(event, bar, tooltip, totalDocumentos) {
+          const label = bar.getAttribute('data-label');
+          const value = bar.getAttribute('data-value');
+          const percent = bar.getAttribute('data-percent');
+          const mesCompleto = bar.getAttribute('data-mes-completo');
+          
+          // Calcular percentual do total de documentos
+          const valorNumerico = parseInt(value.replace(/\D/g, ''));
+          const percentualTotal = totalDocumentos ? ((valorNumerico / totalDocumentos) * 100).toFixed(1) + '%' : 'N/A';
+          
+          // Conteúdo do tooltip
+          let tooltipContent = `
+            <strong>${mesCompleto || label}</strong><br>
+            Quantidade: ${value}<br>
+            Percentual do total: ${percentualTotal}<br>
+            Altura no gráfico: ${percent}
+          `;
+          
+          tooltip.innerHTML = tooltipContent;
+          tooltip.classList.add('show');
+          
+          // Remover classe de posição para nova verificação
+          tooltip.classList.remove('left-position');
+          
+          // Posicionar o tooltip
+          const tooltipHeight = tooltip.offsetHeight;
+          const tooltipWidth = tooltip.offsetWidth;
+          
+          // Verificar se o evento é touch ou mouse
+          let clientX, clientY;
+          if (event.type === 'touchstart') {
+            clientX = event.touches[0].clientX;
+            clientY = event.touches[0].clientY;
+          } else {
+            clientX = event.clientX;
+            clientY = event.clientY;
+          }
+          
+          // Posicionar o tooltip próximo ao cursor (5px de distância)
+          tooltip.style.left = (clientX + 10) + 'px'; // 10px à direita do cursor
+          tooltip.style.top = (clientY - tooltipHeight/2) + 'px'; // Centralizado verticalmente com o cursor
+          
+          // Verificar se o tooltip está fora da tela horizontalmente
+          const rightEdge = window.innerWidth;
+          if (clientX + tooltipWidth + 15 > rightEdge) {
+            // Se estiver saindo pela direita, mostrar à esquerda do cursor
+            tooltip.style.left = (clientX - tooltipWidth - 10) + 'px';
+            tooltip.classList.add('left-position'); // Adicionar classe para posicionar seta corretamente
+          }
+          
+          // Verificar se o tooltip está fora da tela verticalmente
+          const topEdge = window.scrollY;
+          const bottomEdge = window.scrollY + window.innerHeight;
+          const tooltipTop = clientY - tooltipHeight/2;
+          const tooltipBottom = tooltipTop + tooltipHeight;
+          
+          if (tooltipTop < topEdge) {
+            // Se estiver saindo por cima, ajustar para ficar dentro da tela
+            tooltip.style.top = (topEdge + 5) + 'px';
+          } else if (tooltipBottom > bottomEdge) {
+            // Se estiver saindo por baixo, ajustar para ficar dentro da tela
+            tooltip.style.top = (bottomEdge - tooltipHeight - 5) + 'px';
+          }
+        }
+        
+        // Tabela de usuários mais ativos
+        const usuariosAtivosTable = document.getElementById('usuarios-ativos-tbody');
+        usuariosAtivosTable.innerHTML = '';
+        if (data.usuarios_ativos && data.usuarios_ativos.length) {
+          data.usuarios_ativos.forEach(usuario => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${usuario.usuario}</td>
+              <td>${formatNumber(usuario.documentos_gerados)}</td>
+            `;
+            usuariosAtivosTable.appendChild(row);
+          });
+        } else {
+          usuariosAtivosTable.innerHTML = '<tr><td colspan="2" style="text-align: center;">Nenhum dado disponível</td></tr>';
+        }
+      }
+      
+      // Formatador de números para exibição
+      function formatNumber(number, decimals = 0) {
+        if (isNaN(number)) return '0';
+        return parseFloat(number).toLocaleString('pt-BR', {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals
+        });
+      }
+      
+      // Atualizar o dashboard quando clicar no botão
+      refreshBtn.addEventListener('click', loadDashboardData);
+      
+      // Carregar os dados iniciais
+      loadDashboardData();
+    }
+
+    // Lógica para "Gerar Documentos"
+    function setupGerarDocumentosLogic() {
+      const routeBtns = document.querySelectorAll('.route-btn');
+      const cpfPopup = document.getElementById('cpfPopup');
+      const confirmPopup = document.getElementById('confirmPopup');
+      const cpfInput = document.getElementById('cpfInput');
+      const submitCpfBtn = document.getElementById('submitCpfBtn');
+      const cancelCpfBtn = document.getElementById('cancelCpfBtn');
+      const confirmYesBtn = document.getElementById('confirmYesBtn');
+      const confirmNoBtn = document.getElementById('confirmNoBtn');
+      const pessoaDadosContainer = document.getElementById('pessoaDadosContainer');
+      const pessoaDados = document.getElementById('pessoaDados');
+      const preencherDocumentoBtn = document.getElementById('preencherDocumentoBtn');
+      const novaPesquisaBtn = document.getElementById('novaPesquisaBtn');
+
+      let currentRoute = null;
+      let currentRouteText = null;
+      let userData = null;
+
+      // Abrir popup de CPF quando clicar em uma rota
+      routeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          // Remover classe active de todos os botões
+          routeBtns.forEach(b => b.classList.remove('active'));
+          // Adicionar classe active ao botão clicado
+          btn.classList.add('active');
+          
+          currentRoute = btn.getAttribute('data-route');
+          currentRouteText = btn.textContent;
+          cpfInput.value = '';
+          
+          // Mostrar popup de CPF
+          cpfPopup.classList.add('active');
+        });
+      });
+
+      // Cancelar consulta de CPF
+      cancelCpfBtn.addEventListener('click', () => {
+        cpfPopup.classList.remove('active');
+        routeBtns.forEach(b => b.classList.remove('active'));
+      });
+
+      // Enviar CPF para consulta
+      submitCpfBtn.addEventListener('click', async () => {
+        const cpfValue = cpfInput.value.trim();
+        if (!cpfValue) {
+          mostrarAviso('Atenção', 'Por favor, digite um CPF válido.');
+          return;
+        }
+
+        // Exibir indicador de carregamento (opcional)
+        submitCpfBtn.disabled = true;
+        submitCpfBtn.textContent = 'Consultando...';
+
+        // Envio para o webhook do n8n
+        const payload = {
+          rota: currentRoute,
+          rota_texto: currentRouteText,
+          cpf: cpfValue,
+          acao: 'consulta'
+        };
+
+        try {
+          // Fechar popup de CPF
+          cpfPopup.classList.remove('active');
+          
+          const response = await fetch(n8nWebhooks.cpfConsulta, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          
+          if (response.ok) {
+            // Receber dados do n8n (que consultou o Supabase)
+            userData = await response.json();
+            
+            // Verificar se dados foram encontrados
+            if (userData.success === false) {
+              mostrarAviso('CPF não localizado', 'Não foi possível encontrar os dados para este CPF. Verifique se o número está correto ou tente com outro CPF.');
+              routeBtns.forEach(b => b.classList.remove('active'));
+              return;
+            }
+            
+            // Mostrar dados da pessoa
+            let dadosHTML = '';
+            if (userData.dados) {
+              dadosHTML += `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left;">
+                  <div style="font-weight: bold;">Nome:</div>
+                  <div>${userData.dados.nome || '-'}</div>
+                  
+                  <div style="font-weight: bold;">CPF:</div>
+                  <div>${userData.dados.cpf || '-'}</div>
+                  
+                  <div style="font-weight: bold;">Data de Nascimento:</div>
+                  <div>${userData.dados.data_nascimento || '-'}</div>
+                  
+                  <div style="font-weight: bold;">Endereço:</div>
+                  <div>${userData.dados.endereco || '-'}</div>
+                  
+                  <div style="font-weight: bold;">Telefone:</div>
+                  <div>${userData.dados.telefone || '-'}</div>
+                  
+                  <div style="font-weight: bold;">Email:</div>
+                  <div>${userData.dados.email || '-'}</div>
+                </div>
+              `;
+          } else {
+              dadosHTML = `<p>Dados encontrados, mas em formato inesperado.</p>
+                          <pre style="text-align: left; background: #f5f5f5; padding: 10px; max-height: 200px; overflow: auto;">${JSON.stringify(userData, null, 2)}</pre>`;
+            }
+            
+            pessoaDados.innerHTML = dadosHTML;
+            pessoaDadosContainer.style.display = 'block';
+            
+            // Não mostrar popup de confirmação automaticamente
+            // Agora o usuário precisa clicar no botão "Preencher Documento"
+          } else {
+            const errorData = await response.json();
+            alert(`Falha ao consultar os dados: ${errorData.message || 'Erro desconhecido'}`);
+            routeBtns.forEach(b => b.classList.remove('active'));
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Erro de rede ao consultar os dados. Verifique sua conexão.');
+          routeBtns.forEach(b => b.classList.remove('active'));
+        } finally {
+          // Restaurar botão
+          submitCpfBtn.disabled = false;
+          submitCpfBtn.textContent = 'Consultar';
+        }
+      });
+
+      // Botão "Sim" do popup de confirmação
+      confirmYesBtn.addEventListener('click', async () => {
+        // Exibir indicador de carregamento (opcional)
+        confirmYesBtn.disabled = true;
+        confirmYesBtn.textContent = 'Processando...';
+        
+        try {
+          const response = await fetch(n8nWebhooks.documentoGerar, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              acao: 'preencher',
+              rota: currentRoute,
+              rota_texto: currentRouteText,
+              dados: userData,
+              usuario_id: sessionStorage.getItem('userId') || null
+            })
+          });
+          
+          const result = await response.json();
+          console.log("Resposta do servidor:", result);
+          
+          // Fechar o popup de confirmação primeiro, independente do resultado
+          confirmPopup.classList.remove('active');
+          
+          if (response.ok) {
+            if (result.url_documento) {
+              // Armazenar os dados do documento em variáveis globais
+              // para garantir que ainda estejam disponíveis após fechar o aviso
+              window.documentoGerado = {
+                url: result.url_documento,
+                nome: result.nome_documento || 'Documento',
+                tipo: currentRouteText || 'Documento',
+                documentId: result.documentId || result.url_documento.match(/\/d\/([^\/]+)/)?.[1] || '',
+                mensagem: result.mensagem || 'Documento gerado com sucesso!'
+              };
+              
+              // Função específica para configurar a tela do documento
+              // que pode ser chamada várias vezes se necessário
+              function configurarTelaDocumento() {
+                console.log("Configurando tela do documento");
+                
+                // Verificar o tipo de URL retornada e ajustar para exibição em iframe
+                let urlParaIframe = window.documentoGerado.url;
+                
+                // Se for URL do Google Docs, ajustar para incorporação
+                if (urlParaIframe.includes('docs.google.com') && !urlParaIframe.includes('/preview')) {
+                  urlParaIframe = urlParaIframe.replace('/edit', '/preview');
+                  
+                  // Garantir que seja uma URL de incorporação
+                  if (urlParaIframe.includes('?')) {
+                    urlParaIframe += '&embedded=true';
+                  } else {
+                    urlParaIframe += '?embedded=true';
+                  }
+                }
+                
+                // Preencher informações do documento
+                document.getElementById('documentoNome').textContent = window.documentoGerado.nome;
+                document.getElementById('documentoTipo').textContent = window.documentoGerado.tipo;
+                
+                // Data atual formatada
+                const dataAtual = new Date();
+                const dataFormatada = dataAtual.toLocaleDateString('pt-BR') + ' às ' + 
+                                     dataAtual.getHours().toString().padStart(2, '0') + ':' +
+                                     dataAtual.getMinutes().toString().padStart(2, '0');
+                document.getElementById('documentoData').textContent = dataFormatada;
+                
+                // Preencher dados do cliente
+                if (userData && userData.dados) {
+                  document.getElementById('clienteNome').textContent = userData.dados.nome || '-';
+                  document.getElementById('clienteCpf').textContent = userData.dados.cpf || '-';
+                  document.getElementById('clienteEndereco').textContent = userData.dados.endereco || '-';
+                }
+                
+                // Definir URL do iframe
+                document.getElementById('documentoIframe').src = urlParaIframe;
+                
+                // CRÍTICO: Mudar a visibilidade dos containers diretamente
+                document.getElementById('pessoaDadosContainer').style.display = 'none';
+                document.getElementById('documentoGeradoContainer').style.display = 'block';
+                
+                // Atualizar status se houver mensagem específica
+                document.getElementById('statusDocumento').textContent = window.documentoGerado.mensagem;
+                
+                // Limpar e reconfigurar botões para evitar múltiplos listeners
+                const abrirNovaAbaBtn = document.getElementById('abrirNovaAbaBtn');
+                const novoAbrirBtn = abrirNovaAbaBtn.cloneNode(true);
+                abrirNovaAbaBtn.parentNode.replaceChild(novoAbrirBtn, abrirNovaAbaBtn);
+                
+                const voltarBtn = document.getElementById('voltarBtn');
+                const novoVoltarBtn = voltarBtn.cloneNode(true);
+                voltarBtn.parentNode.replaceChild(novoVoltarBtn, voltarBtn);
+                
+                const gerarAssinaturaBtn = document.getElementById('gerarAssinaturaBtn');
+                const novoAssinarBtn = gerarAssinaturaBtn.cloneNode(true);
+                gerarAssinaturaBtn.parentNode.replaceChild(novoAssinarBtn, gerarAssinaturaBtn);
+                
+                // Configurar o botão para abrir em nova aba
+                document.getElementById('abrirNovaAbaBtn').addEventListener('click', () => {
+                  window.open(window.documentoGerado.url, '_blank');
+                });
+                
+                // Configurar o botão para voltar
+                document.getElementById('voltarBtn').addEventListener('click', () => {
+                  document.getElementById('documentoGeradoContainer').style.display = 'none';
+                  routeBtns.forEach(b => b.classList.remove('active'));
+                  document.getElementById('documentoIframe').src = 'about:blank';
+                  // Limpar os dados do documento
+                  window.documentoGerado = null;
+                });
+                
+                // Configurar botão de assinatura
+                document.getElementById('gerarAssinaturaBtn').addEventListener('click', async () => {
+                  try {
+                    const assinaturaBtn = document.getElementById('gerarAssinaturaBtn');
+                    assinaturaBtn.disabled = true;
+                    assinaturaBtn.textContent = 'Processando...';
+                    
+                    // Criar payload com todos os dados necessários
+                    const payloadAssinatura = {
+                      acao: 'assinatura_digital',
+                      documento_url: window.documentoGerado.url,
+                      documento_id: window.documentoGerado.documentId,
+                      documento_nome: window.documentoGerado.nome,
+                      documento_tipo: window.documentoGerado.tipo,
+                      cliente: userData?.dados || {},
+                      usuario_id: sessionStorage.getItem('userId') || null,
+                      data_geracao: dataAtual.toISOString()
+                    };
+                    
+                    console.log("Enviando para assinatura:", payloadAssinatura);
+                    
+                    // Enviar para webhook de assinatura
+                    const assinaturaResponse = await fetch(n8nWebhooks.assinaturaDigital || 'https://app.floweasysetup.com.br/webhook/assinatura-digital', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(payloadAssinatura)
+                    });
+                    
+                    if (assinaturaResponse.ok) {
+                      const assinaturaResult = await assinaturaResponse.json();
+                      console.log("Resposta assinatura:", assinaturaResult);
+                      
+                      if (assinaturaResult.success) {
+                        mostrarAviso('Assinatura Iniciada', assinaturaResult.mensagem || 'O processo de assinatura digital foi iniciado com sucesso!');
+                        
+                        // Se houver um link para o portal de assinatura, abrir
+                        if (assinaturaResult.url_assinatura) {
+                          window.open(assinaturaResult.url_assinatura, '_blank');
+                        }
+                      } else {
+                        mostrarAviso('Erro', assinaturaResult.mensagem || 'Não foi possível iniciar o processo de assinatura.');
+                      }
+                    } else {
+                      mostrarAviso('Erro', 'Falha ao conectar com o serviço de assinatura digital.');
+                    }
+                  } catch (error) {
+                    console.error('Erro ao iniciar assinatura:', error);
+                    mostrarAviso('Erro de Conexão', 'Não foi possível conectar ao serviço de assinatura digital. Verifique sua conexão.');
+                  } finally {
+                    // Restaurar botão
+                    document.getElementById('gerarAssinaturaBtn').disabled = false;
+                    document.getElementById('gerarAssinaturaBtn').textContent = 'Gerar Assinatura Digital';
+                  }
+                });
+                
+                console.log("Tela do documento configurada com sucesso");
+              }
+              
+              // Configurar a tela imediatamente
+              configurarTelaDocumento();
+              
+              // Mostrar aviso de sucesso com garantia de passar para a tela do documento
+              // após o usuário fechar o aviso
+              mostrarAviso('Sucesso', `Documento gerado com sucesso! ${result.mensagem || ''}`, () => {
+                // Verificar se a tela do documento está visível após fechar o aviso
+                // Se não estiver, configurar novamente
+                console.log("Callback do aviso executado");
+                setTimeout(() => {
+                  if (document.getElementById('documentoGeradoContainer').style.display !== 'block') {
+                    console.log("Forçando exibição da tela do documento após fechar o aviso");
+                    configurarTelaDocumento();
+                  }
+                }, 100);
+              });
+              
+            } else {
+              mostrarAviso('Sucesso', 'Documento preparado com sucesso!');
+            }
+          } else {
+            mostrarAviso('Erro', `Falha ao gerar o documento: ${result.message || 'Erro desconhecido'}`);
+          }
+        } catch (err) {
+          confirmPopup.classList.remove('active');
+          console.error('Erro ao gerar documento:', err);
+          mostrarAviso('Erro de Conexão', 'Erro de rede ao gerar o documento. Verifique sua conexão.');
+        } finally {
+          // Restaurar botão
+          confirmYesBtn.disabled = false;
+          confirmYesBtn.textContent = 'Sim';
+        }
+      });
+
+      // Botão de Nova Consulta
+      novaPesquisaBtn.addEventListener('click', () => {
+        pessoaDadosContainer.style.display = 'none';
+        routeBtns.forEach(b => b.classList.remove('active'));
+      });
+
+      // Botão "Não" do popup de confirmação
+      confirmNoBtn.addEventListener('click', () => {
+        confirmPopup.classList.remove('active');
+      });
+      
+      // Botão "Preencher Documento"
+      preencherDocumentoBtn.addEventListener('click', () => {
+        // Mostrar popup de confirmação
+        confirmPopup.classList.add('active');
+      });
+      
+      // Configurar o aviso personalizado
+      const avisoPopup = document.getElementById('avisoPopup');
+      const avisoOkBtn = document.getElementById('avisoOkBtn');
+      const avisoTitulo = document.getElementById('avisoTitulo');
+      const avisoMensagem = document.getElementById('avisoMensagem');
+      
+      // Função para mostrar aviso personalizado
+      function mostrarAviso(titulo, mensagem, callback) {
+        avisoTitulo.textContent = titulo;
+        avisoMensagem.textContent = mensagem;
+        
+        // Ajustar a cor do ícone com base no tipo de mensagem
+        const icone = avisoPopup.querySelector('i');
+        if (titulo.toLowerCase().includes('sucesso')) {
+          icone.style.color = '#4caf50'; // Verde para sucesso
+          icone.innerHTML = '&#10004;'; // Ícone de check
+        } else if (titulo.toLowerCase().includes('erro')) {
+          icone.style.color = '#e74c3c'; // Vermelho para erro
+          icone.innerHTML = '&#9888;'; // Ícone de alerta
+        } else if (titulo.toLowerCase().includes('atenção')) {
+          icone.style.color = '#f39c12'; // Amarelo para atenção
+          icone.innerHTML = '&#9888;'; // Ícone de alerta
+        } else {
+          icone.style.color = '#2196f3'; // Azul para informação
+          icone.innerHTML = '&#8505;'; // Ícone de informação
+        }
+        
+        // Criar ou substituir o listener para o botão OK
+        const novoBtn = avisoOkBtn.cloneNode(true);
+        avisoOkBtn.parentNode.replaceChild(novoBtn, avisoOkBtn);
+        
+        novoBtn.addEventListener('click', function() {
+          avisoPopup.classList.remove('active');
+          if (typeof callback === 'function') {
+            callback();
+          }
+        });
+        
+        // Mostrar o popup
+        avisoPopup.classList.add('active');
+      }
+      
+      // Fechar o aviso personalizado (removido pois agora está integrado na função mostrarAviso)
+      // avisoOkBtn.addEventListener('click', () => {
+      //   avisoPopup.classList.remove('active');
+      // });
+    }
+
+    // Funções de Login/Logout
+    async function handleLogin(event) {
+      event.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      // URL do webhook de autenticação no n8n
+      const webhookUrl = 'https://app.floweasysetup.com.br/webhook/autenticar';
+
+      // Desabilitar o botão de login durante a autenticação
+      const loginBtn = document.querySelector('.login-btn');
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Entrando...';
+
+      try {
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            email, 
+            password,
+            acao: 'login'
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Armazenar informações do usuário para uso posterior
+          if (data.usuario && data.usuario.id) {
+            sessionStorage.setItem('userId', data.usuario.id);
+            sessionStorage.setItem('userName', data.usuario.nome);
+            sessionStorage.setItem('userRole', data.usuario.cargo);
+            // Não armazenar dados sensíveis como senhas
+          }
+          
+          showSuccess();
+        } else {
+          showError();
+        }
+      } catch (error) {
+        console.error('Erro no fetch:', error);
+        // Modo de teste local - remover em produção
+        if (email === 'demo@example.com' && password === '123456') {
+          sessionStorage.setItem('userId', 'usuario-demo-id');
+          sessionStorage.setItem('userName', 'Usuário Demo');
+          showSuccess();
+        } else {
+          showError();
+        }
+      } finally {
+        // Restaurar o botão de login
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Entrar';
+      }
+    }
+
+    function showSuccess() {
+      successMessage.style.display = 'block';
+      errorMessage.style.display = 'none';
+      
+      // Atualizar as informações do usuário
+      updateUserInfo();
+      
+      setTimeout(() => {
+        loginContainer.classList.add('hidden');
+        menuContainer.classList.remove('hidden');
+        document.body.classList.remove('login-bg');
+        document.body.classList.add('menu-bg');
+      }, 1500);
+    }
+
+    // Função para atualizar as informações do usuário no sidebar
+    function updateUserInfo() {
+      const userName = sessionStorage.getItem('userName') || 'Usuário';
+      const userRole = sessionStorage.getItem('userRole') || 'Usuário';
+      
+      // Atualizar o nome e cargo do usuário
+      const userNameDisplay = document.getElementById('userNameDisplay');
+      const userRoleDisplay = document.getElementById('userRoleDisplay');
+      const userAvatar = document.getElementById('userAvatar');
+      
+      if (userNameDisplay) userNameDisplay.textContent = userName;
+      if (userRoleDisplay) userRoleDisplay.textContent = userRole;
+      
+      // Adicionar a primeira letra do nome ao avatar
+      if (userAvatar && userName && userName.length > 0) {
+        userAvatar.textContent = userName.charAt(0).toUpperCase();
+      }
+    }
+
+    function showError() {
+      successMessage.style.display = 'none';
+      errorMessage.style.display = 'block';
+    }
+
+    function handleLogout() {
+      // Opcionalmente, enviar logout para o servidor
+      fetch(n8nWebhooks.autenticacao, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          acao: 'logout',
+          userId: sessionStorage.getItem('userId')
+        })
+      })
+      .then(response => {
+        if (!response.ok) {
+          console.error('Erro ao fazer logout no servidor:', response.status);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Logout registrado com sucesso:', data);
+      })
+      .catch(error => console.error('Erro ao registrar logout:', error))
+      .finally(() => {
+        // Limpar dados da sessão
+        sessionStorage.removeItem('userId');
+        sessionStorage.removeItem('userName');
+        sessionStorage.removeItem('userRole');
+        
+        // Reiniciar formulário e mostrar tela de login
+      document.getElementById('loginForm').reset();
+      errorMessage.style.display = 'none';
+      successMessage.style.display = 'none';
+      loginContainer.classList.remove('hidden');
+      menuContainer.classList.add('hidden');
+      document.body.classList.remove('menu-bg');
+      document.body.classList.add('login-bg');
+      });
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', handleLogin);
+    document.getElementById('logoutButton').addEventListener('click', handleLogout);
+
+    // Inicializar o menu mobile
+    setupMobileMenu();
+
+    // Inicializar o controle de tema
+    setupThemeToggle();
+
+    // Função para configurar a página de modelos
+    function setupModelosLogic() {
+      const uploadForm = document.getElementById('uploadModelForm');
+      const modelNameInput = document.getElementById('modelName');
+      const modelDescriptionInput = document.getElementById('modelDescription');
+      const modelFileInput = document.getElementById('modelFile');
+      const modelCategoryInput = document.getElementById('modelCategory');
+      const uploadModelBtn = document.getElementById('uploadModelBtn');
+      const modelSearchInput = document.getElementById('modelSearch');
+      const filterCategorySelect = document.getElementById('filterCategory');
+      
+      // Verificar se os elementos foram encontrados (estamos na página correta)
+      if (!uploadForm || !modelNameInput || !modelFileInput) return;
+      
+      // Carregar lista de modelos existentes
+      loadModels();
+      
+      // Configurar evento de busca e filtro
+      if (modelSearchInput) {
+        modelSearchInput.addEventListener('input', function() {
+          loadModels(this.value, filterCategorySelect.value);
+        });
+      }
+      
+      if (filterCategorySelect) {
+        filterCategorySelect.addEventListener('change', function() {
+          loadModels(modelSearchInput.value, this.value);
+        });
+      }
+      
+      // Configurar evento de envio do formulário
+      uploadForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Validar arquivo
+        const fileInput = modelFileInput;
+        if (fileInput.files.length === 0) {
+          alert('Por favor, selecione um arquivo PDF.');
+          return;
+        }
+        
+        const file = fileInput.files[0];
+        
+        // Verificar tipo do arquivo
+        if (file.type !== 'application/pdf') {
+          alert('Por favor, selecione um arquivo PDF válido.');
+          return;
+        }
+        
+        // Verificar tamanho (máximo 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+          alert('O arquivo é muito grande. O tamanho máximo é 10MB.');
+          return;
+        }
+        
+        // Mostrar indicador de carregamento
+        const loadingElement = document.createElement('div');
+        loadingElement.className = 'loading-overlay';
+        loadingElement.innerHTML = '<div class="loading-spinner"></div><p>Enviando modelo...</p>';
+        document.body.appendChild(loadingElement);
+        
+        try {
+          // Preparar dados para envio (FormData para upload de arquivo)
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('nome', modelNameInput.value);
+          formData.append('descricao', modelDescriptionInput.value || '');
+          formData.append('categoria', modelCategoryInput.value);
+          formData.append('usuario_id', sessionStorage.getItem('userId') || '');
+          formData.append('acao', 'upload_modelo');
+          
+          // Enviar para o webhook
+          const response = await fetch(n8nWebhooks.modelos, {
+            method: 'POST',
+            body: formData
+          });
+          
+          const result = await response.json();
+          
+          // Remover indicador de carregamento
+          document.body.removeChild(loadingElement);
+          
+          if (response.ok && result.success) {
+            showNotification('success', 'Modelo Enviado', `O modelo "${modelNameInput.value}" foi enviado com sucesso!`);
+            
+            // Limpar formulário
+            uploadForm.reset();
+            
+            // Recarregar lista de modelos
+            loadModels();
+          } else {
+            showNotification('error', 'Erro no Envio', `Não foi possível enviar o modelo: ${result.message || 'Erro desconhecido'}`);
+          }
+        } catch (error) {
+          // Remover indicador de carregamento
+          document.body.removeChild(loadingElement);
+          console.error('Erro ao enviar modelo:', error);
+          showNotification('error', 'Erro de Conexão', 'Ocorreu um erro ao tentar enviar o modelo. Verifique sua conexão.');
+        }
+      });
+    }
+    
+    // Funções globais para ações nos modelos
+    function viewModel(modelId) {
+      if (!modelId) return;
+      
+      // Mostrar indicador de carregamento
+      const loadingElement = document.createElement('div');
+      loadingElement.className = 'loading-overlay';
+      loadingElement.innerHTML = '<div class="loading-spinner"></div><p>Preparando documento para visualização...</p>';
+      document.body.appendChild(loadingElement);
+      
+      // Enviar requisição para preparar a visualização
+      fetch(n8nWebhooks.modelos, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          acao: 'visualizar',
+          id: modelId,
+          usuario_id: sessionStorage.getItem('userId') || ''
+        })
+      })
+      .then(response => response.json())
+      .then(result => {
+        // Remover indicador de carregamento
+        document.body.removeChild(loadingElement);
+        
+        // Verificar se o resultado é um objeto com URL ou um modelo completo
+        if (result.success && result.url) {
+          // Formato: { success: true, url: "..." }
+          showNotification('info', 'Abrindo Modelo', 'O documento será aberto em uma nova aba.');
+          window.open(result.url, '_blank');
+        } else if (Array.isArray(result) && result.length > 0 && result[0].arquivo_url) {
+          // Formato: [{ ..., arquivo_url: "..." }]
+          showNotification('info', 'Abrindo Modelo', 'O documento será aberto em uma nova aba.');
+          window.open(result[0].arquivo_url, '_blank');
+        } else if (result.arquivo_url) {
+          // Formato: { ..., arquivo_url: "..." }
+          showNotification('info', 'Abrindo Modelo', 'O documento será aberto em uma nova aba.');
+          window.open(result.arquivo_url, '_blank');
+        } else {
+          showNotification('error', 'Erro ao Visualizar', `Não foi possível abrir o documento: ${result.message || 'Erro desconhecido'}`);
+        }
+      })
+      .catch(error => {
+        // Remover indicador de carregamento
+        document.body.removeChild(loadingElement);
+        console.error('Erro ao preparar visualização:', error);
+        showNotification('error', 'Erro de Conexão', 'Ocorreu um erro ao tentar preparar o documento para visualização.');
+      });
+    }
+    
+    function deleteModel(modelId) {
+      if (!modelId) return;
+      
+      // Criar modal de confirmação personalizado
+      const confirmModal = document.createElement('div');
+      confirmModal.className = 'custom-modal';
+      confirmModal.innerHTML = `
+        <div class="custom-modal-content">
+          <div class="custom-modal-header">
+            <h3>Confirmar exclusão</h3>
+            <span class="custom-modal-close">&times;</span>
+          </div>
+          <div class="custom-modal-body">
+            <p>Tem certeza que deseja excluir este modelo?</p>
+            <p class="warning-text">Esta ação não pode ser desfeita.</p>
+          </div>
+          <div class="custom-modal-footer">
+            <button class="btn-cancel">Cancelar</button>
+            <button class="btn-confirm">Sim, excluir</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(confirmModal);
+      
+      // Mostrar modal
+      setTimeout(() => confirmModal.classList.add('active'), 10);
+      
+      // Configurar eventos
+      const closeBtn = confirmModal.querySelector('.custom-modal-close');
+      const cancelBtn = confirmModal.querySelector('.btn-cancel');
+      const confirmBtn = confirmModal.querySelector('.btn-confirm');
+      
+      // Função para fechar o modal
+      const closeModal = () => {
+        confirmModal.classList.remove('active');
+        setTimeout(() => confirmModal.remove(), 300);
+      };
+      
+      // Configurar eventos de fechar
+      closeBtn.addEventListener('click', closeModal);
+      cancelBtn.addEventListener('click', closeModal);
+      
+      // Ao confirmar exclusão
+      confirmBtn.addEventListener('click', () => {
+        closeModal();
+        
+        // Mostrar indicador de carregamento
+        const loadingElement = document.createElement('div');
+        loadingElement.className = 'loading-overlay';
+        loadingElement.innerHTML = '<div class="loading-spinner"></div><p>Excluindo modelo...</p>';
+        document.body.appendChild(loadingElement);
+        
+        // Enviar solicitação de exclusão
+        fetch(n8nWebhooks.modelos, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            acao: 'excluir_modelo',
+            id: modelId,
+            usuario_id: sessionStorage.getItem('userId') || ''
+          })
+        })
+        .then(response => response.json())
+        .then(result => {
+          // Remover indicador de carregamento
+          document.body.removeChild(loadingElement);
+          
+          if (result.success) {
+            showNotification('success', 'Modelo Excluído', 'O modelo foi excluído com sucesso!');
+            
+            // Recarregar lista de modelos
+            if (document.getElementById('modelsList')) {
+              const modelSearchInput = document.getElementById('modelSearch');
+              const filterCategorySelect = document.getElementById('filterCategory');
+              loadModels(
+                modelSearchInput ? modelSearchInput.value : '', 
+                filterCategorySelect ? filterCategorySelect.value : ''
+              );
+            }
+          } else {
+            showNotification('error', 'Erro na Exclusão', `Não foi possível excluir o modelo: ${result.message || 'Erro desconhecido'}`);
+          }
+        })
+        .catch(error => {
+          // Remover indicador de carregamento
+          document.body.removeChild(loadingElement);
+          console.error('Erro ao excluir modelo:', error);
+          showNotification('error', 'Erro de Conexão', 'Ocorreu um erro ao tentar excluir o modelo. Verifique sua conexão.');
+        });
+      });
+    }
+    
+    // Função para carregar a lista de modelos - versão global para poder ser chamada após deleção
+    async function loadModels(search = '', category = '') {
+      const modelsListContainer = document.getElementById('modelsList');
+      if (!modelsListContainer) return;
+      
+      // Mostrar indicador de carregamento
+      modelsListContainer.innerHTML = '<div class="models-loading"><p>Carregando modelos...</p></div>';
+      
+      try {
+        // Usando POST em vez de GET para consistência
+        const response = await fetch(n8nWebhooks.modelos, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            acao: 'listar_modelos',
+            busca: search || '',
+            categoria: category || '',
+            usuario_id: sessionStorage.getItem('userId') || ''
+          })
+        });
+        
+        // Processar a resposta
+        const result = await response.json();
+        
+        // Verificar se a resposta é um array (formato direto) ou tem um wrapper
+        const models = Array.isArray(result) ? result : (result.success && result.modelos ? result.modelos : []);
+        
+        if (response.ok && models.length > 0) {
+          // Exibir modelos
+          let modelHtml = '';
+          models.forEach(model => {
+            const createdDate = new Date(model.created_at).toLocaleDateString('pt-BR');
+            
+            modelHtml += `
+              <div class="model-card" data-id="${model.id}">
+                <div class="model-title">${model.nome}</div>
+                <div class="model-description">${model.descricao || 'Sem descrição'}</div>
+                <div class="model-meta">
+                  <span>Categoria: ${model.categoria}</span>
+                  <span>Data: ${createdDate}</span>
+                </div>
+                <div class="model-actions">
+                  <button class="download" onclick="viewModel('${model.id}')">Visualizar</button>
+                  <button onclick="deleteModel('${model.id}')">Excluir</button>
+                </div>
+              </div>
+            `;
+          });
+          
+          modelsListContainer.innerHTML = modelHtml;
+        } else if (response.ok && models.length === 0) {
+          // Sem modelos encontrados
+          modelsListContainer.innerHTML = `
+            <div class="models-empty">
+              <i>📄</i>
+              <p>Nenhum modelo encontrado</p>
+              <p>Comece fazendo upload de um novo modelo.</p>
+            </div>
+          `;
+        } else {
+          // Erro na resposta
+          modelsListContainer.innerHTML = `
+            <div class="models-error">
+              <i>⚠️</i>
+              <p>Erro ao carregar modelos</p>
+              <p>${result.message || 'Não foi possível conectar ao servidor'}</p>
+              <button class="retry-btn" onclick="loadModels('${search}', '${category}')">Tentar Novamente</button>
+            </div>
+          `;
+          console.error('Erro ao carregar modelos:', result.message);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar modelos:', error);
+        modelsListContainer.innerHTML = `
+          <div class="models-error">
+            <i>⚠️</i>
+            <p>Erro ao carregar modelos</p>
+            <p>Verifique sua conexão com a internet</p>
+            <button class="retry-btn" onclick="loadModels('${search}', '${category}')">Tentar Novamente</button>
+          </div>
+        `;
+      }
+    }
+
+    // Função para mostrar notificações
+    function showNotification(type, title, message, duration = 5000) {
+      // Remover notificações existentes
+      const existingNotifications = document.querySelectorAll('.notification');
+      existingNotifications.forEach(notification => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 400);
+      });
+      
+      // Criar elementos da notificação
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      
+      let iconContent = '';
+      switch (type) {
+        case 'success':
+          iconContent = '✓';
+          break;
+        case 'error':
+          iconContent = '✕';
+          break;
+        case 'warning':
+          iconContent = '!';
+          break;
+        case 'info':
+          iconContent = 'i';
+          break;
+      }
+      
+      notification.innerHTML = `
+        <div class="notification-icon">${iconContent}</div>
+        <div class="notification-content">
+          <div class="notification-title">${title}</div>
+          <div class="notification-message">${message}</div>
+        </div>
+        <div class="notification-close">✕</div>
+        <div class="notification-progress">
+          <div class="notification-progress-bar"></div>
+        </div>
+      `;
+      
+      // Adicionar ao DOM
+      document.body.appendChild(notification);
+      
+      // Forçar reflow para iniciar a animação corretamente
+      notification.offsetHeight;
+      
+      // Mostrar notificação
+      setTimeout(() => notification.classList.add('show'), 10);
+      
+      // Configurar evento de fechar
+      const closeBtn = notification.querySelector('.notification-close');
+      closeBtn.addEventListener('click', () => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 400);
+      });
+      
+      // Fechar automaticamente após a duração especificada
+      if (duration > 0) {
+        setTimeout(() => {
+          if (document.body.contains(notification)) {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 400);
+          }
+        }, duration);
+      }
+      
+      return notification;
+    }
+
+    function mostrarAviso(tipo, mensagem, callback) {
+        // Remover qualquer aviso anterior
+        const avisoAnterior = document.querySelector('.aviso-popup');
+        if (avisoAnterior) {
+            document.body.removeChild(avisoAnterior);
+        }
+
+        // Criar o container do aviso
+        const avisoContainer = document.createElement('div');
+        avisoContainer.className = 'aviso-popup';
+        avisoContainer.style.position = 'fixed';
+        avisoContainer.style.top = '0';
+        avisoContainer.style.left = '0';
+        avisoContainer.style.width = '100%';
+        avisoContainer.style.height = '100%';
+        avisoContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        avisoContainer.style.display = 'flex';
+        avisoContainer.style.justifyContent = 'center';
+        avisoContainer.style.alignItems = 'center';
+        avisoContainer.style.zIndex = '9999';
+
+        // Criar o conteúdo do aviso
+        const avisoContent = document.createElement('div');
+        avisoContent.style.backgroundColor = 'white';
+        avisoContent.style.padding = '20px';
+        avisoContent.style.borderRadius = '5px';
+        avisoContent.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
+        avisoContent.style.textAlign = 'center';
+        avisoContent.style.maxWidth = '500px';
+        avisoContent.style.width = '90%';
+
+        // Ícone
+        const avisoIcone = document.createElement('div');
+        if (tipo === 'sucesso') {
+            avisoIcone.innerHTML = '<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="32" fill="#4CAF50" fill-opacity="0.1"/><path d="M32 2C15.432 2 2 15.432 2 32C2 48.568 15.432 62 32 62C48.568 62 62 48.568 62 32C62 15.432 48.568 2 32 2ZM32 56C18.767 56 8 45.233 8 32C8 18.767 18.767 8 32 8C45.233 8 56 18.767 56 32C56 45.233 45.233 56 32 56Z" fill="#4CAF50"/><path d="M44 24L28 40L20 32" stroke="#4CAF50" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        } else if (tipo === 'erro') {
+            avisoIcone.innerHTML = '<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="32" fill="#F44336" fill-opacity="0.1"/><path d="M32 2C15.432 2 2 15.432 2 32C2 48.568 15.432 62 32 62C48.568 62 62 48.568 62 32C62 15.432 48.568 2 32 2ZM32 56C18.767 56 8 45.233 8 32C8 18.767 18.767 8 32 8C45.233 8 56 18.767 56 32C56 45.233 45.233 56 32 56Z" fill="#F44336"/><path d="M42 22L22 42" stroke="#F44336" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 22L42 42" stroke="#F44336" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        } else {
+            avisoIcone.innerHTML = '<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="32" fill="#2196F3" fill-opacity="0.1"/><path d="M32 2C15.432 2 2 15.432 2 32C2 48.568 15.432 62 32 62C48.568 62 62 48.568 62 32C62 15.432 48.568 2 32 2ZM32 56C18.767 56 8 45.233 8 32C8 18.767 18.767 8 32 8C45.233 8 56 18.767 56 32C56 45.233 45.233 56 32 56Z" fill="#2196F3"/><path d="M32 20V32" stroke="#2196F3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="44" r="2" fill="#2196F3"/></svg>';
+        }
+        avisoContent.appendChild(avisoIcone);
+
+        // Título do aviso
+        const avisoTitulo = document.createElement('h3');
+        avisoTitulo.textContent = tipo.charAt(0).toUpperCase() + tipo.slice(1);
+        avisoTitulo.style.margin = '10px 0';
+        avisoContent.appendChild(avisoTitulo);
+
+        // Mensagem do aviso
+        const avisoMensagem = document.createElement('p');
+        avisoMensagem.textContent = mensagem;
+        avisoMensagem.style.marginBottom = '20px';
+        avisoContent.appendChild(avisoMensagem);
+
+        // Botão OK
+        const btnOK = document.createElement('button');
+        btnOK.textContent = 'OK';
+        btnOK.style.padding = '10px 20px';
+        btnOK.style.backgroundColor = '#2196F3';
+        btnOK.style.color = 'white';
+        btnOK.style.border = 'none';
+        btnOK.style.borderRadius = '4px';
+        btnOK.style.cursor = 'pointer';
+        
+        // MODIFICAÇÃO AQUI: Ao clicar em OK, forçamos a atualização da interface
+        btnOK.addEventListener('click', function() {
+            console.log("Botão OK clicado - fechando popup e executando callback");
+            
+            // Remover o popup
+            document.body.removeChild(avisoContainer);
+            
+            // HACK: Forçar substituição do conteúdo diretamente no HTML da página
+            if (window.documentoGerado) {
+                // Selecionar o container principal
+                const mainContainer = document.querySelector('.container.mt-5');
+                if (mainContainer) {
+                    console.log("TRANSFORMANDO INTERFACE...");
+                    
+                    // Esconder a seção de dados do usuário
+                    mainContainer.style.display = 'none';
+                    
+                    // Criar um novo container para o documento
+                    const novoContainer = document.createElement('div');
+                    novoContainer.className = 'container mt-5';
+                    novoContainer.id = 'documento-container';
+                    
+                    // Definir HTML do novo container com layout da tela do documento
+                    novoContainer.innerHTML = `
+                        <div class="row">
+                            <div class="col-12">
+                                <h2 class="text-primary">Documento Gerado</h2>
+                                <p class="text-success">Documento gerado com sucesso!</p>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div id="documento-preview-container" style="width: 100%; height: 700px; border: 1px solid #e0e0e0; border-radius: 5px; overflow: hidden;">
+                                    <iframe id="documento-iframe" src="${window.documentoGerado.url_documento}" style="width: 100%; height: 100%; border: none;"></iframe>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div style="background-color: #f5f9ff; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #0c3c82;">
+                                    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                                        <div style="flex: 1; min-width: 250px;">
+                                            <h3 style="font-size: 16px; margin-bottom: 10px; color: #0c3c82;">Detalhes do Documento</h3>
+                                            <p><strong>Nome do arquivo:</strong> <span id="documento-nome">${window.documentoGerado.nome_documento || 'Documento Gerado'}</span></p>
+                                            <p><strong>Tipo:</strong> <span>Termos Gerais</span></p>
+                                            <p><strong>Gerado em:</strong> <span>${new Date().toLocaleDateString('pt-BR')}</span></p>
+                                        </div>
+                                        <div style="flex: 1; min-width: 250px;">
+                                            <h3 style="font-size: 16px; margin-bottom: 10px; color: #0c3c82;">Dados do Cliente</h3>
+                                            <p><strong>Nome:</strong> <span>${document.getElementById('nome').value}</span></p>
+                                            <p><strong>CPF:</strong> <span>${document.getElementById('cpf').value}</span></p>
+                                            <p><strong>Endereço:</strong> <span>${document.getElementById('endereco').value}</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    <button id="btn-assinatura-digital" class="btn btn-success btn-lg">Gerar Assinatura Digital</button>
+                                    <button id="btn-abrir-documento" class="btn btn-primary">Abrir em Nova Aba</button>
+                                    <button id="btn-atualizar-documento" class="btn btn-warning" style="background-color: #ff9800; color: white; font-weight: bold; margin: 8px 0; position: relative; overflow: hidden;">
+                                        <i class="fas fa-sync-alt"></i> Atualizar Arquivo
+                                        <span style="position: absolute; width: 100%; height: 100%; top: 0; left: -100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); animation: shine 2s infinite;"></span>
+                                    </button>
+                                    <button id="btn-voltar" class="btn btn-secondary">Voltar</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Inserir o novo container logo após o container atual
+                    if (mainContainer.parentNode) {
+                        mainContainer.parentNode.insertBefore(novoContainer, mainContainer.nextSibling);
+                    } else {
+                        // Se não conseguir inserir depois, adicionar ao body
+                        document.body.appendChild(novoContainer);
+                    }
+                    
+                    // Configurar eventos dos botões
+                    setTimeout(() => {
+                        // Botão de assinatura digital
+                        const btnAssinatura = document.getElementById('btn-assinatura-digital');
+                        if (btnAssinatura) {
+                            btnAssinatura.addEventListener('click', function() {
+                                this.disabled = true;
+                                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+                                
+                                setTimeout(() => {
+                                    this.disabled = false;
+                                    this.innerHTML = 'Gerar Assinatura Digital';
+                                    mostrarAviso('sucesso', 'Solicitação de assinatura digital enviada com sucesso!');
+                                }, 1500);
+                            });
+                        }
+                        
+                        // Botão abrir em nova aba
+                        const btnAbrir = document.getElementById('btn-abrir-documento');
+                        if (btnAbrir) {
+                            btnAbrir.addEventListener('click', function() {
+                                window.open(window.documentoGerado.url_documento, '_blank');
+                            });
+                        }
+                        
+                        // Botão atualizar documento
+                        const btnAtualizar = document.getElementById('btn-atualizar-documento');
+                        if (btnAtualizar) {
+                            btnAtualizar.addEventListener('click', function() {
+                                console.log("Atualizando documento...");
+                                
+                                // Mostrar indicador de carregamento
+                                this.disabled = true;
+                                this.innerHTML = 'Atualizando...';
+                                
+                                // Obter referência ao iframe
+                                const iframe = document.getElementById('documento-iframe');
+                                if (iframe) {
+                                    // Adicionar timestamp para forçar recarga sem cache
+                                    const timestamp = new Date().getTime();
+                                    const currentSrc = iframe.src;
+                                    
+                                    // Criar nova URL com timestamp
+                                    const newSrc = currentSrc.includes('?') 
+                                        ? `${currentSrc}&_ts=${timestamp}` 
+                                        : `${currentSrc}?_ts=${timestamp}`;
+                                    
+                                    // Definir função para quando o iframe terminar de carregar
+                                    iframe.onload = function() {
+                                        btnAtualizar.disabled = false;
+                                        btnAtualizar.innerHTML = 'Atualizar Documento';
+                                        mostrarAviso('sucesso', 'Documento atualizado com sucesso!');
+                                    };
+                                    
+                                    // Recarregar o iframe
+                                    iframe.src = newSrc;
+                                } else {
+                                    this.disabled = false;
+                                    this.innerHTML = 'Atualizar Documento';
+                                    mostrarAviso('erro', 'Não foi possível atualizar o documento.');
+                                }
+                            });
+                        }
+                        
+                        // Botão voltar
+                        const btnVoltar = document.getElementById('btn-voltar');
+                        if (btnVoltar) {
+                            btnVoltar.addEventListener('click', function() {
+                                // Mostrar novamente a seção de dados
+                                mainContainer.style.display = 'block';
+                                // Remover o container do documento
+                                if (novoContainer.parentNode) {
+                                    novoContainer.parentNode.removeChild(novoContainer);
+                                }
+                                // Limpar dados do documento
+                                window.documentoGerado = null;
+                            });
+                        }
+                    }, 100);
+                }
+            }
+            
+            // Executar o callback original se fornecido
+            if (typeof callback === 'function') {
+                callback();
+            }
+        });
+        
+        avisoContent.appendChild(btnOK);
+        avisoContainer.appendChild(avisoContent);
+        document.body.appendChild(avisoContainer);
+    }
+
+    function fecharConfirmacao() {
+        const confirmacaoPopup = document.getElementById('confirmacao-popup');
+        if (confirmacaoPopup) {
+            confirmacaoPopup.style.display = 'none';
+        }
+    }
+
+    // Variável global para armazenar os dados do documento gerado
+    window.documentoGerado = null;
+
+    // Função para renderizar a tela do documento (substitui o conteúdo principal)
+    function renderizarTelaDocumento(dados) {
+        console.log("Renderizando tela do documento com os dados:", dados);
+        
+        // Encontrar o container principal da aplicação
+        const mainContainer = document.querySelector('.container.mt-5');
+        if (!mainContainer) {
+            console.error("Container principal não encontrado!");
+            return false;
+        }
+        
+        // Salvar a referência do container original para poder voltar depois
+        if (!window.containerOriginal) {
+            window.containerOriginal = mainContainer.innerHTML;
+        }
+        
+        // Preparar a URL do documento para garantir edição
+        let docUrl = dados.url_documento;
+        
+        // Forçar URL de edição (remover parâmetros existentes e adicionar nossos próprios)
+        if (docUrl.includes('/edit')) {
+            // Remover parâmetros existentes se houver
+            docUrl = docUrl.split('?')[0];
+            
+            // Google Docs específico para edição embutida
+            docUrl = docUrl + '?usp=sharing&widget=true&headers=false';
+        }
+        
+        console.log("URL do documento para edição:", docUrl);
+        
+        // SUBSTITUIR COMPLETAMENTE o conteúdo do container principal
+        mainContainer.innerHTML = `
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="text-primary">Documento Gerado</h2>
+                    <p class="text-success">Documento gerado com sucesso! <strong>Clique no documento abaixo para editar diretamente.</strong></p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Editor de Documento</h5>
+                            <small class="text-light">Clique dentro do documento para editar</small>
+                        </div>
+                        <div class="card-body p-0">
+                            <iframe 
+                                id="documento-iframe" 
+                                src="${docUrl}" 
+                                style="width:100%; height:700px; border:none;" 
+                                frameborder="0" 
+                                allowfullscreen="true" 
+                                mozallowfullscreen="true" 
+                                webkitallowfullscreen="true"
+                                allow="clipboard-write; clipboard-read; autoplay; camera; microphone; display-capture"
+                            ></iframe>
+                        </div>
+                    </div>
+                    
+                    <!-- Botão alternativo para editar direto no Google Docs -->
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle"></i> 
+                        Se não conseguir editar diretamente acima, 
+                        <a href="${dados.url_documento}" target="_blank" class="alert-link">clique aqui para editar no Google Docs</a>.
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Detalhes do Documento</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <strong>Nome do arquivo:</strong>
+                                <p id="documento-nome">${dados.nome_documento || 'Documento Gerado'}</p>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Tipo:</strong>
+                                <p>Termos Gerais</p>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Gerado em:</strong>
+                                <p>${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0">Dados do Cliente</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <strong>Nome:</strong>
+                                <p>${document.getElementById('nome').value}</p>
+                            </div>
+                            <div class="mb-3">
+                                <strong>CPF:</strong>
+                                <p>${document.getElementById('cpf').value}</p>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Endereço:</strong>
+                                <p>${document.getElementById('endereco').value}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button id="btn-assinatura-digital" class="btn btn-success btn-lg">
+                            <i class="fas fa-signature"></i> Gerar Assinatura Digital
+                        </button>
+                        <button id="btn-abrir-documento" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt"></i> Abrir em Nova Aba
+                        </button>
+                        <button id="btn-atualizar-documento" class="btn btn-warning" style="background-color: #ff9800; color: white; font-weight: bold; margin: 8px 0; position: relative; overflow: hidden;">
+                            <i class="fas fa-sync-alt"></i> Atualizar Arquivo
+                            <span style="position: absolute; width: 100%; height: 100%; top: 0; left: -100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); animation: shine 2s infinite;"></span>
+                        </button>
+                        <button id="btn-voltar" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Voltar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Configurar os listeners dos botões
+        document.getElementById('btn-assinatura-digital').addEventListener('click', function() {
+            console.log("Botão de assinatura digital clicado");
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+            
+            // Construir o payload para o webhook de assinatura digital
+            const dadosAssinatura = {
+                action: "assinatura_digital",
+                document_url: dados.url_documento,
+                document_id: dados.documentId || "",
+                nome_documento: dados.nome_documento || "Documento Gerado",
+                tipo_documento: "Google Document",
+                cliente: {
+                    nome: document.getElementById('nome').value,
+                    cpf: document.getElementById('cpf').value,
+                    endereco: document.getElementById('endereco').value,
+                    email: document.getElementById('email').value,
+                    telefone: document.getElementById('telefone').value
+                },
+                user_id: "atual", // Substituir pelo ID do usuário logado
+                data_geracao: new Date().toISOString()
+            };
+            
+            console.log("Enviando dados para assinatura digital:", dadosAssinatura);
+            
+            // Simular o envio para o webhook
+            setTimeout(() => {
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-signature"></i> Gerar Assinatura Digital';
+                mostrarAviso('sucesso', 'Solicitação de assinatura digital enviada com sucesso!');
+            }, 1500);
+        });
+        
+        document.getElementById('btn-abrir-documento').addEventListener('click', function() {
+            console.log("Abrindo documento em nova aba para edição:", dados.url_documento);
+            window.open(dados.url_documento, '_blank');
+        });
+        
+        document.getElementById('btn-atualizar-documento').addEventListener('click', function() {
+            console.log("Botão de atualizar documento clicado");
+            // Mostrar feedback visual no botão
+            const btnAtualizar = this;
+            const originalText = btnAtualizar.innerHTML;
+            btnAtualizar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Atualizando...';
+            btnAtualizar.disabled = true;
+            
+            // Chamar a função de atualização
+            const iframe = document.getElementById('documento-iframe');
+            if (iframe) {
+                // Função para quando o iframe terminar de carregar
+                iframe.onload = function() {
+                    console.log("Iframe recarregado com sucesso");
+                    setTimeout(() => {
+                        btnAtualizar.innerHTML = originalText;
+                        btnAtualizar.disabled = false;
+                        mostrarAviso('sucesso', 'Documento atualizado com sucesso!');
+                    }, 500);
+                };
+                
+                // Adiciona um timestamp para forçar recarregamento
+                let currentSrc = iframe.src;
+                
+                // Remover timestamp anterior se existir
+                if (currentSrc.includes('t=')) {
+                    currentSrc = currentSrc.replace(/[&?]t=\d+/, '');
+                }
+                
+                // Adicionar novo timestamp
+                const timestamp = new Date().getTime();
+                const newSrc = currentSrc.includes('?') ? 
+                    `${currentSrc}&t=${timestamp}` : 
+                    `${currentSrc}?t=${timestamp}`;
+                
+                // Atualizar o iframe
+                iframe.src = newSrc;
+                console.log("Iframe atualizado com timestamp");
+            } else {
+                mostrarAviso('erro', 'Não foi possível encontrar o documento para atualizar');
+                btnAtualizar.innerHTML = originalText;
+                btnAtualizar.disabled = false;
+            }
+        });
+        
+        document.getElementById('btn-voltar').addEventListener('click', function() {
+            console.log("Voltando para a tela de dados pessoais");
+            // Restaurar o conteúdo original
+            if (window.containerOriginal) {
+                mainContainer.innerHTML = window.containerOriginal;
+                // Reconfigurar os eventos originais
+                configurarEventosOriginais();
+            }
+            // Limpar dados do documento
+            window.documentoGerado = null;
+        });
+        
+        // Tentar alternativas de edição se o iframe normal não funcionar
+        const verificarEdicao = () => {
+            console.log("Verificando capacidade de edição do iframe");
+            
+            // Verificar se após 5 segundos o usuário clicou em abrir em nova aba
+            // Se sim, mostrar um aviso sugerindo editar em nova aba
+            setTimeout(() => {
+                const iframe = document.getElementById('documento-iframe');
+                if (iframe) {
+                    console.log("Adicionando atalho para edição");
+                    // Adicionar botão de edição rápida sobre o iframe
+                    const editButtonContainer = document.createElement('div');
+                    editButtonContainer.style.position = 'absolute';
+                    editButtonContainer.style.top = '50px';
+                    editButtonContainer.style.left = '20px';
+                    editButtonContainer.style.zIndex = '100';
+                    
+                    const editButton = document.createElement('button');
+                    editButton.className = 'btn btn-warning';
+                    editButton.innerHTML = '<i class="fas fa-edit"></i> Ativar Edição';
+                    editButton.onclick = function() {
+                        window.open(dados.url_documento, '_blank');
+                        this.parentNode.style.display = 'none';
+                    };
+                    
+                    editButtonContainer.appendChild(editButton);
+                    iframe.parentNode.style.position = 'relative';
+                    iframe.parentNode.appendChild(editButtonContainer);
+                }
+            }, 5000);
+        };
+        
+        // Chamar verificação
+        verificarEdicao();
+        
+        return true;
+    }
+
+    // Função para configurar novamente os eventos originais após voltar
+    function configurarEventosOriginais() {
+        // Reconfigurar o botão de confirmar (preenchimento de documento)
+        const btnConfirmar = document.getElementById('confirmar-btn');
+        if (btnConfirmar) {
+            // Remover qualquer evento existente
+            btnConfirmar.replaceWith(btnConfirmar.cloneNode(true));
+            // Adicionar o evento novamente
+            document.getElementById('confirmar-btn').addEventListener('click', gerarDocumento);
+        }
+        
+        // Reconfigurar o botão de preencher documento
+        const btnPreencher = document.getElementById('preencher-btn');
+        if (btnPreencher) {
+            btnPreencher.replaceWith(btnPreencher.cloneNode(true));
+            document.getElementById('preencher-btn').addEventListener('click', function() {
+                document.getElementById('confirmacao-popup').style.display = 'flex';
+            });
+        }
+    }
+
+    // Função principal para gerar o documento
+    function gerarDocumento() {
+        const loadingEl = document.createElement('div');
+        loadingEl.innerHTML = '<div class="spinner-border text-light" role="status"><span class="visually-hidden">Carregando...</span></div> Processando...';
+        this.innerHTML = '';
+        this.appendChild(loadingEl);
+        this.disabled = true;
+        
+        const nome = document.getElementById('nome').value;
+        const cpf = document.getElementById('cpf').value;
+        const dataNascimento = document.getElementById('data-nascimento').value;
+        const endereco = document.getElementById('endereco').value;
+        const telefone = document.getElementById('telefone').value;
+        const email = document.getElementById('email').value;
+
+        // Construir payload para enviar ao webhook
+        const payload = {
+            nome,
+            cpf,
+            data_nascimento: dataNascimento,
+            endereco,
+            telefone,
+            email,
+            tipo_documento: "Termos Gerais"
+        };
+
+        console.log("Enviando dados para geração de documento:", payload);
+
+        // Simulação da chamada para o webhook
+        setTimeout(() => {
+            const resposta = {
+                success: true,
+                url_documento: "https://docs.google.com/document/d/1l7z5zraOw4kKwA9xCdo7jTHS_3fovsP0lkA8hlq9hI8/edit",
+                documentId: "1l7z5zraOw4kKwA9xCdo7jTHS_3fovsP0lkA8hlq9hI8",
+                nome_documento: "Contrato de Termos Gerais - " + nome,
+                mensagem: "Documento gerado com sucesso!"
+            };
+            
+            console.log("Resposta recebida do servidor:", resposta);
+            
+            // Armazenar os dados do documento para uso posterior
+            window.documentoGerado = resposta;
+            
+            // Fechar a confirmação
+            fecharConfirmacao();
+            
+            // Mostrar mensagem de sucesso 
+            mostrarAviso('sucesso', 'Documento gerado com sucesso!', function() {
+                console.log("Callback do aviso executado - atualizando a interface");
+                
+                // APÓS clicar em OK no aviso, substituímos a interface completamente
+                renderizarTelaDocumento(window.documentoGerado);
+            });
+            
+            this.innerHTML = 'Confirmar';
+            this.disabled = false;
+        }, 2000);
+    }
+
+    // Configurar evento do botão principal de confirmar
+    document.getElementById('confirmar-btn').addEventListener('click', gerarDocumento);
+
+    // Configurar evento do botão preencher documento
+    document.getElementById('preencher-btn').addEventListener('click', function() {
+        document.getElementById('confirmacao-popup').style.display = 'flex';
+    });
+
+    // Adicionar função para atualizar o iframe do documento
+    function atualizarDocumentoIframe() {
+        console.log("Função de atualizar documento chamada");
+        
+        const iframe = document.getElementById('documento-iframe');
+        if (iframe) {
+            // Mostrar aviso de carregamento
+            mostrarAviso('info', 'Atualizando documento, aguarde...');
+            
+            // Adicionar timestamp para forçar recarga sem cache
+            const timestamp = new Date().getTime();
+            const currentSrc = iframe.src;
+            
+            // Criar nova URL com timestamp
+            const newSrc = currentSrc.includes('?') 
+                ? `${currentSrc}&_ts=${timestamp}` 
+                : `${currentSrc}?_ts=${timestamp}`;
+            
+            // Definir função para quando o iframe terminar de carregar
+            iframe.onload = function() {
+                mostrarAviso('sucesso', 'Documento atualizado com sucesso!');
+            };
+            
+            // Recarregar o iframe
+            iframe.src = newSrc;
+        } else {
+            mostrarAviso('erro', 'Não foi possível atualizar o documento.');
+        }
+    }
+
+    // Adicionar um botão de atualizar documento logo após a página carregar
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM carregado, procurando por botões para adicionar o botão de atualização");
+        
+        // Verificar periodicamente se os botões existem (para quando forem adicionados dinamicamente)
+        const checkInterval = setInterval(function() {
+            const btnAbrirDocumento = document.getElementById('btn-abrir-documento');
+            const btnVoltar = document.getElementById('btn-voltar');
+            
+            // Se o botão "Abrir em Nova Aba" existir e o botão "Atualizar" não existir ainda
+            if (btnAbrirDocumento && btnVoltar && !document.getElementById('btn-atualizar-documento')) {
+                console.log("Botões encontrados, adicionando botão de atualização");
+                
+                // Criar o botão de atualização
+                const btnAtualizar = document.createElement('button');
+                btnAtualizar.id = 'btn-atualizar-documento';
+                btnAtualizar.className = 'btn btn-warning';
+                btnAtualizar.style.backgroundColor = '#ff9800';
+                btnAtualizar.style.color = 'white';
+                btnAtualizar.style.margin = '10px 0';
+                btnAtualizar.textContent = 'Atualizar Arquivo';
+                
+                // Adicionar evento ao botão
+                btnAtualizar.addEventListener('click', atualizarDocumentoIframe);
+                
+                // Inserir o botão após o botão "Abrir em Nova Aba"
+                btnAbrirDocumento.parentNode.insertBefore(btnAtualizar, btnVoltar);
+                
+                // Limpar o intervalo após adicionar o botão
+                clearInterval(checkInterval);
+            }
+        }, 500); // Verificar a cada 500ms
+    });
+
+    // Adicione esta função para atualizar o documento
+    function atualizarDocumento() {
+        console.log('Atualizando documento...');
+        const iframe = document.getElementById('documento-iframe');
+        if (iframe) {
+            // Adicionar timestamp para forçar recarga
+            const timestamp = new Date().getTime();
+            let novaSrc = iframe.src;
+            
+            // Remover qualquer timestamp anterior
+            if (novaSrc.includes('_ts=')) {
+                novaSrc = novaSrc.replace(/[&?]_ts=\d+/, '');
+            }
+            
+            // Adicionar novo timestamp
+            novaSrc = novaSrc.includes('?') ? 
+                novaSrc + '&_ts=' + timestamp : 
+                novaSrc + '?_ts=' + timestamp;
+            
+            // Recarregar iframe
+            iframe.src = novaSrc;
+            
+            // Mostrar mensagem
+            mostrarAviso('info', 'Atualizando documento...', function() {
+                mostrarAviso('sucesso', 'Documento atualizado com sucesso!');
+            });
+        } else {
+            mostrarAviso('erro', 'Não foi possível encontrar o documento para atualizar.');
+        }
+    }
+
+    // Habilitar modo de depuração
+    console.log('Depuração ativada.');
+
+    // MODIFICAR OS BOTÕES DIRETAMENTE NA PÁGINA
+    // Esta função será executada quando a página carregar e após qualquer alteração no DOM
+    function adicionarBotaoAtualizar() {
+        console.log('Verificando botões existentes...');
+        
+        // Buscar pelo botão "Abrir em Nova Aba"
+        const botoesExistentes = document.querySelectorAll('.btn');
+        
+        if (botoesExistentes.length > 0) {
+            console.log('Botões encontrados:', botoesExistentes.length);
+            
+            // Verificar se já existe um botão de atualizar
+            if (!document.querySelector('.btn-atualizar-doc')) {
+                console.log('Criando botão de atualizar...');
+                
+                // Criar novo botão
+                const botaoAtualizar = document.createElement('button');
+                botaoAtualizar.innerHTML = 'Atualizar Arquivo';
+                botaoAtualizar.className = 'btn btn-warning btn-atualizar-doc';
+                botaoAtualizar.style.marginRight = '5px';
+                botaoAtualizar.style.backgroundColor = '#ff9800';
+                botaoAtualizar.style.color = 'white';
+                botaoAtualizar.onclick = atualizarDocumento;
+                
+                // Procurar o botão "Voltar"
+                let botaoVoltar = null;
+                for (let i = 0; i < botoesExistentes.length; i++) {
+                    if (botoesExistentes[i].innerText.includes('Voltar') || 
+                        botoesExistentes[i].innerText.includes('voltar')) {
+                        botaoVoltar = botoesExistentes[i];
+                        break;
+                    }
+                }
+                
+                // Se encontrou o botão voltar, inserir antes dele
+                if (botaoVoltar) {
+                    console.log('Inserindo botão antes de "Voltar"');
+                    botaoVoltar.parentNode.insertBefore(botaoAtualizar, botaoVoltar);
+                } 
+                // Caso contrário, tentar encontrar o botão de abrir em nova aba
+                else {
+                    let botaoAbrir = null;
+                    for (let i = 0; i < botoesExistentes.length; i++) {
+                        if (botoesExistentes[i].innerText.includes('Abrir') || 
+                            botoesExistentes[i].innerText.includes('Nova Aba')) {
+                            botaoAbrir = botoesExistentes[i];
+                            break;
+                        }
+                    }
+                    
+                    // Se encontrou o botão abrir, inserir depois dele
+                    if (botaoAbrir) {
+                        console.log('Inserindo botão depois de "Abrir em Nova Aba"');
+                        if (botaoAbrir.nextSibling) {
+                            botaoAbrir.parentNode.insertBefore(botaoAtualizar, botaoAbrir.nextSibling);
+                        } else {
+                            botaoAbrir.parentNode.appendChild(botaoAtualizar);
+                        }
+                    } 
+                    // Se não encontrou nenhum botão de referência, adicionar diretamente na página
+                    else {
+                        console.log('Inserindo botão diretamente na página');
+                        const telaDocumento = document.getElementById('documento-container') || 
+                                            document.querySelector('.container.mt-5');
+                        
+                        if (telaDocumento) {
+                            // Criar container para o botão se não existir
+                            let botoesContainer = telaDocumento.querySelector('.btn-group') || 
+                                                telaDocumento.querySelector('.d-grid');
+                            
+                            if (!botoesContainer) {
+                                console.log('Criando container para botões');
+                                botoesContainer = document.createElement('div');
+                                botoesContainer.className = 'd-grid gap-2';
+                                botoesContainer.style.marginTop = '15px';
+                                telaDocumento.appendChild(botoesContainer);
+                            }
+                            
+                            botoesContainer.appendChild(botaoAtualizar);
+                        } else {
+                            // Último recurso: adicionar diretamente na página
+                            console.log('Último recurso: adicionar no body');
+                            
+                            // Criar um container flutuante para o botão
+                            const floatingBtn = document.createElement('div');
+                            floatingBtn.style.position = 'fixed';
+                            floatingBtn.style.bottom = '20px';
+                            floatingBtn.style.right = '20px';
+                            floatingBtn.style.zIndex = '9999';
+                            
+                            floatingBtn.appendChild(botaoAtualizar);
+                            document.body.appendChild(floatingBtn);
+                        }
+                    }
+                }
+                
+                console.log('Botão "Atualizar Arquivo" adicionado com sucesso!');
+            } else {
+                console.log('Botão de atualizar já existe.');
+            }
+        } else {
+            console.log('Nenhum botão encontrado ainda.');
+        }
+    }
+
+    // Executar a função quando o DOM estiver pronto
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM carregado, verificando botões...');
+        adicionarBotaoAtualizar();
+        
+        // Observar mudanças no DOM para adicionar o botão quando necessário
+        const observer = new MutationObserver(function(mutations) {
+            adicionarBotaoAtualizar();
+        });
+        
+        observer.observe(document.body, { 
+            childList: true, 
+            subtree: true 
+        });
+        
+        // Verificar periodicamente também
+        setInterval(adicionarBotaoAtualizar, 1000);
+        
+        // Adicionar botão direto entre "Abrir em Nova Aba" e "Voltar"
+        setTimeout(function() {
+            console.log('Tentativa direta de adicionar botão após 3 segundos');
+            
+            // Botão Abrir em Nova Aba
+            const btnAbrirNovaAba = document.querySelector('a[href="Abrir em Nova Aba"], button:contains("Abrir em Nova Aba")');
+            
+            if (btnAbrirNovaAba) {
+                // Criar botão Atualizar
+                const btnAtualizar = document.createElement('button');
+                btnAtualizar.className = 'btn btn-warning btn-atualizar-doc';
+                btnAtualizar.innerHTML = 'Atualizar Arquivo';
+                btnAtualizar.style.backgroundColor = '#ff9800';
+                btnAtualizar.style.color = 'white';
+                btnAtualizar.style.margin = '0 5px';
+                btnAtualizar.onclick = atualizarDocumento;
+                
+                // Inserir após botão abrir
+                btnAbrirNovaAba.parentNode.insertBefore(btnAtualizar, btnAbrirNovaAba.nextSibling);
+                console.log('Botão adicionado diretamente após Abrir em Nova Aba');
+            } else {
+                console.log('Botão Abrir em Nova Aba não encontrado para método direto');
+                
+                // Se o botão normal não for encontrado, procurar pelo seletor visual
+                const abrirBtn = document.querySelector('a.btn-primary, button.btn-primary');
+                const voltarBtn = document.querySelector('a.btn-secondary, button.btn-secondary');
+                
+                if (abrirBtn && voltarBtn) {
+                    const btnAtualizar = document.createElement('button');
+                    btnAtualizar.className = 'btn btn-warning btn-atualizar-doc';
+                    btnAtualizar.innerHTML = 'Atualizar Arquivo';
+                    btnAtualizar.style.backgroundColor = '#ff9800';
+                    btnAtualizar.style.color = 'white';
+                    btnAtualizar.style.margin = '0 5px';
+                    btnAtualizar.onclick = atualizarDocumento;
+                    
+                    voltarBtn.parentNode.insertBefore(btnAtualizar, voltarBtn);
+                    console.log('Botão adicionado entre os botões baseado em classes');
+                }
+            }
+        }, 3000);
+    });
+
+    // Inserir o botão diretamente como um elemento fixo na página
+    setTimeout(function() {
+        console.log('Adicionando botão fixo como último recurso');
+        
+        if (!document.querySelector('.btn-atualizar-doc')) {
+            const fixedButton = document.createElement('button');
+            fixedButton.innerHTML = 'ATUALIZAR ARQUIVO';
+            fixedButton.className = 'btn btn-warning btn-atualizar-doc';
+            fixedButton.style.position = 'fixed';
+            fixedButton.style.bottom = '20px';
+            fixedButton.style.right = '20px';
+            fixedButton.style.zIndex = '9999';
+            fixedButton.style.padding = '10px 20px';
+            fixedButton.style.backgroundColor = '#ff9800';
+            fixedButton.style.color = 'white';
+            fixedButton.style.fontWeight = 'bold';
+            fixedButton.style.border = 'none';
+            fixedButton.style.borderRadius = '5px';
+            fixedButton.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
+            fixedButton.onclick = atualizarDocumento;
+            
+            document.body.appendChild(fixedButton);
+            console.log('Botão fixo adicionado');
+        }
+    }, 5000);
+
+    // Função para atualizar o documento (recarregar o iframe)
+    function atualizarDocumento() {
+      console.log("Função atualizarDocumento chamada");
+      
+      // Tenta encontrar o iframe por vários seletores possíveis
+      const iframe = document.getElementById('documento-iframe') || 
+                    document.getElementById('documentoIframe') || 
+                    document.querySelector('iframe');
+      
+      if (iframe) {
+        // Mostrar um aviso de carregamento
+        if (typeof mostrarAviso === 'function') {
+          mostrarAviso('info', 'Atualizando documento, aguarde...');
+        } else {
+          alert('Atualizando documento...');
+        }
+        
+        // Adiciona um timestamp para forçar recarregamento
+        let currentSrc = iframe.src;
+        
+        // Remover timestamp anterior se existir
+        if (currentSrc.includes('t=')) {
+          currentSrc = currentSrc.replace(/[&?]t=\d+/, '');
+        }
+        
+        // Adicionar novo timestamp
+        const timestamp = new Date().getTime();
+        const newSrc = currentSrc.includes('?') ? 
+            `${currentSrc}&t=${timestamp}` : 
+            `${currentSrc}?t=${timestamp}`;
+        
+        console.log("Atualizando iframe de:", currentSrc);
+        console.log("Para:", newSrc);
+        
+        // Função para quando o iframe terminar de carregar
+        iframe.onload = function() {
+          console.log("Iframe recarregado com sucesso");
+          if (typeof mostrarAviso === 'function') {
+            mostrarAviso('sucesso', 'Documento atualizado com sucesso!');
+          }
+        };
+        
+        // Atualizar o iframe
+        iframe.src = newSrc;
+      } else {
+        console.error("Iframe não encontrado");
+        if (typeof mostrarAviso === 'function') {
+          mostrarAviso('erro', 'Não foi possível encontrar o documento para atualizar');
+        } else {
+          alert('Erro: Não foi possível encontrar o documento para atualizar');
+        }
+      }
+    }
+
+    // Criar e adicionar o botão fixo
+    function criarBotaoFixoAtualizar() {
+      // Remover botão anterior se existir
+      const botaoExistente = document.querySelector('.botao-fixo-atualizar');
+      if (botaoExistente) {
+        botaoExistente.remove();
+      }
+
+      // Criar novo botão
+      const botaoAtualizar = document.createElement('button');
+      botaoAtualizar.className = 'botao-fixo-atualizar';
+      botaoAtualizar.innerText = 'Atualizar Documento';
+      botaoAtualizar.onclick = atualizarDocumento;
+      
+      // Adicionar à página
+      document.body.appendChild(botaoAtualizar);
+      console.log("Botão fixo de atualização adicionado");
+    }
+
+    // Verificar periodicamente se o documento está sendo exibido
+    setInterval(() => {
+      const iframe = document.querySelector('iframe');
+      const telaDocumento = document.getElementById('documento');
+      if (iframe && telaDocumento && window.getComputedStyle(telaDocumento).display !== 'none') {
+        criarBotaoFixoAtualizar();
+      }
+    }, 1000);
+
+    // Criar o botão imediatamente ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+      criarBotaoFixoAtualizar();
+      console.log("Evento DOMContentLoaded: tentativa de criar botão");
+    });
+
+    // Criar o botão após qualquer modificação no DOM
+    const observer = new MutationObserver(() => {
+      criarBotaoFixoAtualizar();
+      console.log("MutationObserver: tentativa de criar botão");
+    });
+    
+    observer.observe(document.body, { 
+      childList: true, 
+      subtree: true 
+    });
+  </script>
+  
+  <!-- Script para adicionar o botão de atualização de documentos -->
+  <script>
+    // Auto-execução imediata para garantir aplicação
+    (function() {
+        console.log("Script de atualização de documentos iniciado");
+        
+        // Função para adicionar o botão de atualizar entre Abrir em Nova Aba e Voltar
+        function adicionarBotaoAtualizar() {
+            // Se o botão já existe, não adicionar novamente
+            if (document.getElementById('btn-atualizar-arquivo')) {
+                return;
+            }
+            
+            console.log("Tentando adicionar botão de atualização");
+            
+            // Localizar os botões existentes
+            const btnAbrir = document.querySelector('a.btn-primary, button.btn-primary');
+            const btnVoltar = document.querySelector('a.btn-secondary, button.btn-secondary');
+            
+            // Se encontrou os botões e estão na mesma div
+            if (btnAbrir && btnVoltar && btnAbrir.parentNode === btnVoltar.parentNode) {
+                // Criar o botão de atualizar
+                const btnAtualizar = document.createElement('button');
+                btnAtualizar.id = 'btn-atualizar-arquivo';
+                btnAtualizar.className = 'btn btn-warning';
+                btnAtualizar.style.backgroundColor = '#ff9800';
+                btnAtualizar.style.color = 'white';
+                btnAtualizar.style.fontWeight = 'bold';
+                btnAtualizar.style.margin = '0 8px';
+                btnAtualizar.innerHTML = '<i class="fas fa-sync-alt"></i> Atualizar Arquivo';
+                
+                // Adicionar o botão entre Abrir em Nova Aba e Voltar
+                btnVoltar.parentNode.insertBefore(btnAtualizar, btnVoltar);
+                console.log("Botão de atualização adicionado com sucesso");
+                
+                // Adicionar funcionalidade ao botão
+                btnAtualizar.addEventListener('click', atualizarDocumento);
+            } else {
+                console.log("Não foi possível localizar os botões necessários");
+            }
+        }
+        
+        // Função para atualizar o documento
+        function atualizarDocumento() {
+            console.log("Função atualizarDocumento chamada");
+            
+            // Ajustar aparência do botão durante a atualização
+            this.disabled = true;
+            const textoOriginal = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Atualizando...';
+            
+            // Procurar o iframe do documento
+            const iframe = document.querySelector('iframe');
+            if (iframe) {
+                // Função para executar quando o iframe terminar de carregar
+                iframe.onload = () => {
+                    setTimeout(() => {
+                        this.disabled = false;
+                        this.innerHTML = textoOriginal;
+                        
+                        // Mostrar mensagem de sucesso
+                        if (typeof mostrarAviso === 'function') {
+                            mostrarAviso('Sucesso', 'Documento atualizado com sucesso!');
+                        } else {
+                            alert('Documento atualizado com sucesso!');
+                        }
+                    }, 500);
+                };
+                
+                // Adicionar timestamp para forçar recarregamento
+                let currentSrc = iframe.src;
+                
+                // Remover timestamp anterior se existir
+                if (currentSrc.includes('t=')) {
+                    currentSrc = currentSrc.replace(/[&?]t=\d+/, '');
+                }
+                
+                // Adicionar novo timestamp
+                const timestamp = new Date().getTime();
+                const newSrc = currentSrc.includes('?') ? 
+                    `${currentSrc}&t=${timestamp}` : 
+                    `${currentSrc}?t=${timestamp}`;
+                
+                console.log("Atualizando iframe para:", newSrc);
+                iframe.src = newSrc;
+            } else {
+                // Restaurar botão se não encontrar o iframe
+                this.disabled = false;
+                this.innerHTML = textoOriginal;
+                
+                // Mostrar mensagem de erro
+                if (typeof mostrarAviso === 'function') {
+                    mostrarAviso('Erro', 'Não foi possível encontrar o documento para atualizar');
+                } else {
+                    alert('Erro: Não foi possível encontrar o documento para atualizar');
+                }
+            }
+        }
+        
+        // Verificar se a tela do documento está visível e adicionar o botão
+        function verificarTelaDocumento() {
+            // Verificar a presença de elementos específicos da tela de documento
+            const iframe = document.querySelector('iframe');
+            if (!iframe) return;
+            
+            // Verificar se estamos na tela de documento
+            // Verificar botões ou texto na página
+            const documentoVisivel = 
+                document.querySelector('.btn-primary') || 
+                document.getElementById('btn-abrir-documento') ||
+                document.querySelector('button:contains("Abrir em Nova Aba")') ||
+                // Nova verificação específica para a tela mostrada na imagem
+                document.querySelector('h2:contains("Documento Gerado")') ||
+                document.querySelector('div:contains("Documento gerado com sucesso")');
+            
+            if (documentoVisivel) {
+                adicionarBotaoAtualizar();
+            }
+        }
+        
+        // Executar verificação quando o DOM estiver carregado
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', verificarTelaDocumento);
+        } else {
+            verificarTelaDocumento();
+        }
+        
+        // Observar mudanças no DOM para adicionar o botão quando a tela mudar
+        const observer = new MutationObserver(verificarTelaDocumento);
+        observer.observe(document.body, { childList: true, subtree: true });
+        
+        // Verificar periodicamente (como garantia)
+        setInterval(verificarTelaDocumento, 1000);
+        
+        // Forçar execução após 2 segundos para garantir que o DOM está completamente carregado
+        setTimeout(verificarTelaDocumento, 2000);
+    })();
+  </script>
+</body>
+</html>
+
+
