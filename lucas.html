@@ -35,7 +35,7 @@
       --shadow-color: rgba(0, 0, 0, 0.1);
       --success-color: #4caf50;
       --error-color: #f44336;
-      --login-gradient: linear-gradient(135deg, #0d47a1, #2196f3);
+      --login-gradient: linear-gradient(to bottom, #1a237e 0%, #1e3fc7 30%, #0d47a1 50%, #1e88e5 80%, #29b6f6 100%);
     }
 
     /* Variáveis para o Tema Escuro */
@@ -57,12 +57,18 @@
       --shadow-color: rgba(0, 0, 0, 0.25);
       --success-color: #81c784;
       --error-color: #e57373;
-      --login-gradient: linear-gradient(135deg, #1a237e, #0d47a1);
+      --login-gradient: linear-gradient(to bottom, #1a237e 0%, #1e3fc7 30%, #0d47a1 50%, #1e88e5 80%, #29b6f6 100%);
     }
 
     /* BODY: Classes para tela de login ou menu */
     body.login-bg {
       background: var(--login-gradient);
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+      margin: 0;
+      padding: 0;
+      width: 100%;
       height: 100vh; 
       overflow: hidden;
     }
@@ -302,6 +308,7 @@
       }
     }
 
+    /* Adicionando estilos para as imagens de logo */
     .logo {
       font-weight: bold;
       font-size: 24px;
@@ -311,6 +318,27 @@
       padding: 15px 0;
       border-bottom: 2px solid var(--border-color);
     }
+    
+    /* Estilo para a imagem da logo */
+    .logo-img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+    
+    /* Estilo para a logo na tela de login */
+    .login-logo {
+      max-width: 200px;
+      margin: 0 auto 30px;
+    }
+    
+    /* Estilo para a logo na sidebar */
+    .sidebar .logo-img {
+      max-width: 170px;
+      padding: 5px 0;
+    }
+    
     .menu a {
       display: flex;
       align-items: center;
@@ -489,19 +517,25 @@
       flex: 1 1 calc(25% - 15px);
       min-width: 100px;
       padding: 14px 10px;
-      background: var(--menu-item-bg);
-      border: none;
+      background: var(--card-bg);
+      border: 2px solid var(--primary-color);
       border-radius: 10px;
       cursor: pointer;
       text-align: center;
       font-weight: 600;
       color: var(--primary-color);
       transition: all 0.3s ease;
-      box-shadow: 5px 5px 10px var(--shadow-color);
+      box-shadow: 3px 3px 8px var(--shadow-color);
+      margin-bottom: 10px;
+      position: relative;
+      overflow: hidden;
     }
     .route-btn:hover, .route-btn.active {
       background: var(--primary-gradient);
       color: white;
+      border-color: transparent;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(25, 118, 210, 0.3);
     }
     .route-btn:active {
       transform: translateY(1px);
@@ -511,7 +545,19 @@
     .route-btn.active {
       background: var(--primary-gradient);
       color: white;
-      box-shadow: inset 3px 3px 6px var(--shadow-color);
+      border-color: transparent;
+      box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(25, 118, 210, 0.5);
+      transform: translateY(0);
+    }
+    .route-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: white;
+      box-shadow: 0 -1px 5px rgba(255, 255, 255, 0.7);
     }
     #routeInputContainer {
       display: none;
@@ -804,11 +850,11 @@
     }
     
     .bar {
-      flex: 0 0 60px; /* Largura fixa maior */
-      margin: 0 20px; /* Mais espaço entre as barras */
+      flex: 0 0 20px; /* Reduzindo de 30px para 20px */
+      margin: 0 10px; /* Reduzindo o espaço entre as barras de 20px para 10px */
       background: linear-gradient(to top, var(--primary-light), #64b5f6);
-      min-width: 40px; /* Garantindo largura mínima */
-      max-width: 60px; /* Limitando largura máxima */
+      min-width: 15px; /* Reduzindo de 20px para 15px */
+      max-width: 20px; /* Reduzindo de 30px para 20px */
       border-radius: 5px 5px 0 0;
       position: relative;
     }
@@ -879,10 +925,10 @@
       }
       
       .bar {
-        flex: 0 0 45px;
-        margin: 0 12px;
-        min-width: 35px;
-        max-width: 45px;
+        flex: 0 0 15px; /* Reduzindo de 25px para 15px */
+        margin: 0 8px; /* Reduzindo de 12px para 8px */
+        min-width: 10px; /* Reduzindo de 15px para 10px */
+        max-width: 15px; /* Reduzindo de 25px para 15px */
       }
       
       .recent-activity {
@@ -923,62 +969,25 @@
     }
 
     .filter-container {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
+      display: none; /* Ocultar completamente em vez de remover, para evitar problemas com referências */
     }
 
     .filter-container label {
-      font-weight: 600;
-      color: var(--primary-color);
-    }
-
-    .periodo-select, .data-input {
-      padding: 8px 12px;
-      border-radius: 5px;
-      border: 1px solid var(--border-color);
-      background-color: var(--card-bg);
-      color: var(--text-color);
-      font-size: 14px;
-      box-shadow: 0 2px 4px var(--shadow-color);
-      transition: all 0.3s ease;
-    }
-
-    .periodo-select:focus, .data-input:focus {
-      outline: none;
-      border-color: var(--primary-light);
-      box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
-    }
-
-    .datas-personalizado {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 5px;
-    }
-
-    .datas-personalizado.hidden {
       display: none;
     }
 
-    .apply-btn {
-      padding: 8px 15px;
-      background: var(--primary-gradient);
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      transition: all 0.3s ease;
+    .periodo-select, .data-input {
+      display: none;
     }
 
-    .apply-btn:hover {
-      background: linear-gradient(135deg, #0d47a1, #1976d2);
-      transform: translateY(-2px);
+    .datas-personalizado {
+      display: none !important;
     }
-    
+
+    .apply-btn {
+      display: none;
+    }
+
     .stats-cards {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -1027,11 +1036,11 @@
     }
     
     .bar {
-      flex: 0 0 60px; /* Largura fixa maior */
-      margin: 0 20px; /* Mais espaço entre as barras */
+      flex: 0 0 20px; /* Reduzindo de 30px para 20px */
+      margin: 0 10px; /* Reduzindo o espaço entre as barras de 20px para 10px */
       background: linear-gradient(to top, var(--primary-light), #64b5f6);
-      min-width: 40px; /* Garantindo largura mínima */
-      max-width: 60px; /* Limitando largura máxima */
+      min-width: 15px; /* Reduzindo de 20px para 15px */
+      max-width: 20px; /* Reduzindo de 30px para 20px */
       border-radius: 5px 5px 0 0;
       position: relative;
       cursor: pointer;
@@ -1057,10 +1066,7 @@
     }
 
     .filter-container {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
+      display: none; /* Ocultar completamente em vez de remover, para evitar problemas com referências */
     }
     
     .export-btn {
@@ -1491,12 +1497,106 @@
       transform: scale(1.03);
       transition: all 0.2s ease;
     }
+
+    /* Estilos para as rotas e documentos */
+    .button-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .route-btn {
+      flex: 1 1 calc(25% - 15px);
+      min-width: 100px;
+      padding: 14px 10px;
+      background: var(--card-bg);
+      border: 2px solid var(--primary-color);
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+      font-weight: 600;
+      color: var(--primary-color);
+      transition: all 0.3s ease;
+      box-shadow: 3px 3px 8px var(--shadow-color);
+      margin-bottom: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .route-btn:hover, .route-btn.active {
+      background: var(--primary-gradient);
+      color: white;
+      border-color: transparent;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(25, 118, 210, 0.3);
+    }
+    .route-btn:active {
+      transform: translateY(1px);
+      box-shadow: 3px 3px 6px var(--shadow-color);
+    }
+    /* Adicionando efeito de seleção para botões ativos */
+    .route-btn.active {
+      background: var(--primary-gradient);
+      color: white;
+      border-color: transparent;
+      box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(25, 118, 210, 0.5);
+      transform: translateY(0);
+    }
+    .route-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: white;
+      box-shadow: 0 -1px 5px rgba(255, 255, 255, 0.7);
+    }
+    
+    /* Estilos para os botões de ação do documento */
+    .doc-actions-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .doc-action-btn {
+      flex: 1;
+      min-width: 120px;
+      max-width: 200px;
+      padding: 12px 15px;
+      font-weight: bold;
+      border-radius: 8px;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .doc-action-btn i {
+      font-size: 16px;
+    }
+    
+    .doc-action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .doc-action-btn:active {
+      transform: translateY(1px);
+    }
   </style>
 </head>
 <body class="login-bg">
   <!-- TELA DE LOGIN -->
   <div class="login-container" id="loginContainer">
-    <h1>Flow Easy</h1>
+    <div class="login-logo">
+      <img src="https://i.postimg.cc/HsqLXz2t/LOGO-2-AZUL.png" alt="Flow Easy" class="logo-img">
+    </div>
     <div class="message error-message" id="errorMessage">
       Email ou senha incorretos. Tente novamente.
     </div>
@@ -1523,7 +1623,9 @@
     <div class="menu-overlay" id="menuOverlay"></div>
     <div class="sidebar" id="sidebar">
       <div>
-        <div class="logo">FLOW EASY</div>
+        <div class="logo">
+          <img src="https://i.postimg.cc/HsqLXz2t/LOGO-2-AZUL.png" alt="Flow Easy" class="logo-img">
+        </div>
         <nav class="menu">
           <a href="#" data-content="dashboard" class="active">&#128200; Dashboard</a>
           <a href="#" data-content="gerar-documentos">&#128196; Gerar documentos</a>
@@ -1670,62 +1772,25 @@
           }
 
           .filter-container {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 10px;
+            display: none; /* Ocultar completamente em vez de remover, para evitar problemas com referências */
           }
 
           .filter-container label {
-            font-weight: 600;
-            color: var(--primary-color);
-          }
-
-          .periodo-select, .data-input {
-            padding: 8px 12px;
-            border-radius: 5px;
-            border: 1px solid var(--border-color);
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            font-size: 14px;
-            box-shadow: 0 2px 4px var(--shadow-color);
-            transition: all 0.3s ease;
-          }
-
-          .periodo-select:focus, .data-input:focus {
-            outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
-          }
-
-          .datas-personalizado {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 5px;
-          }
-
-          .datas-personalizado.hidden {
             display: none;
           }
 
-          .apply-btn {
-            padding: 8px 15px;
-            background: var(--primary-gradient);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
+          .periodo-select, .data-input {
+            display: none;
           }
 
-          .apply-btn:hover {
-            background: linear-gradient(135deg, #0d47a1, #1976d2);
-            transform: translateY(-2px);
+          .datas-personalizado {
+            display: none !important;
           }
-          
+
+          .apply-btn {
+            display: none;
+          }
+
           .stats-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -1814,10 +1879,10 @@
           
           .bar {
             flex: 1;
-            margin: 0 15px;
+            margin: 0 8px; /* Reduzindo de 15px para 8px */
             background: linear-gradient(to top, var(--primary-light), #64b5f6);
-            min-width: 20px;
-            max-width: 60px;
+            min-width: 12px; /* Reduzindo de 15px para 12px */
+            max-width: 20px; /* Reduzindo de 30px para 20px */
             margin-left: auto;
             margin-right: auto;
             border-radius: 5px 5px 0 0;
@@ -1874,22 +1939,6 @@
             <div class="control-group">
               <button id="refresh-dashboard" class="refresh-btn">Atualizar Dashboard</button>
               <button id="export-pdf" class="export-btn">Exportar PDF</button>
-            </div>
-            <div class="filter-container">
-              <label for="periodo-filtro">Filtrar por período:</label>
-              <select id="periodo-filtro" class="periodo-select">
-                <option value="todos">Todos os períodos</option>
-                <option value="7dias">Últimos 7 dias</option>
-                <option value="30dias">Últimos 30 dias</option>
-                <option value="90dias">Último trimestre</option>
-                <option value="365dias">Último ano</option>
-                <option value="personalizado">Período personalizado</option>
-              </select>
-              <div id="datas-personalizado" class="datas-personalizado hidden">
-                <input type="date" id="data-inicio" class="data-input" placeholder="Data inicial">
-                <input type="date" id="data-fim" class="data-input" placeholder="Data final">
-                <button id="aplicar-datas" class="apply-btn">Aplicar</button>
-              </div>
             </div>
           </div>
           
@@ -1950,14 +1999,14 @@
         + "<p>Aqui você pode gerar documentos personalizados para seus clientes. "
         + "Escolha uma das rotas abaixo para preencher automaticamente o documento.</p>"
         + "<div class='button-grid'>"
-          + "<button class='route-btn' data-route='rota1'>Termos Gerais</button>"
-          + "<button class='route-btn' data-route='rota2'>Rota 2</button>"
-          + "<button class='route-btn' data-route='rota3'>Rota 3</button>"
-          + "<button class='route-btn' data-route='rota4'>Rota 4</button>"
-          + "<button class='route-btn' data-route='rota5'>Rota 5</button>"
-          + "<button class='route-btn' data-route='rota6'>Rota 6</button>"
-          + "<button class='route-btn' data-route='rota7'>Rota 7</button>"
-          + "<button class='route-btn' data-route='rota8'>Rota 8</button>"
+          + "<button class='route-btn' data-route='rota1'>Procuração</button>"
+          + "<button class='route-btn' data-route='rota2'>Contrato prestação de serviços</button>"
+          + "<button class='route-btn' data-route='rota3'>Declaração de residência</button>"
+          + "<button class='route-btn' data-route='rota4'>Declaração de separação de fato</button>"
+          + "<button class='route-btn' data-route='rota5'>Requerimento do BPC e Composição familiar</button>"
+          + "<button class='route-btn' data-route='rota6'>Termo de consentimento LGPD</button>"
+          + "<button class='route-btn' data-route='rota7'>Termo de Representação Previdenciária</button>"
+          + "<button class='route-btn' data-route='rota8'>Termo de Responsabilidade</button>"
         + "</div>"
         /* Área para exibir dados da pessoa */
         + "<div id='pessoaDadosContainer' style='display: none; margin: 30px 0; padding: 20px; background-color: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);'>"
@@ -1977,7 +2026,7 @@
             + "</div>"
             + "<div>"
               + "<button id='gerarAssinaturaBtn' class='popup-btn popup-btn-primary' style='margin-right: 10px; background: linear-gradient(135deg, #2e7d32, #4caf50);'>Gerar Assinatura Digital</button>"
-              + "<button id='abrirNovaAbaBtn' class='popup-btn popup-btn-secondary' style='margin-right: 10px;'>Abrir em Nova Aba</button>"
+              + "<button id='abrirNovaAbaBtn' class='popup-btn popup-btn-secondary' style='margin-right: 10px;'>Editar documento</button>"
               + "<button id='voltarBtn' class='popup-btn popup-btn-primary'>Voltar</button>"
             + "</div>"
           + "</div>"
@@ -2052,9 +2101,9 @@
                 <textarea id="modelDescription" name="modelDescription" placeholder="Descreva para que serve este modelo"></textarea>
               </div>
               <div class="form-group">
-                <label for="modelFile">Arquivo PDF</label>
-                <input type="file" id="modelFile" name="modelFile" accept=".pdf" required>
-                <div class="file-info">Apenas arquivos PDF são aceitos. Tamanho máximo: 10MB</div>
+                <label for="modelFile">Arquivo DOC</label>
+                <input type="file" id="modelFile" name="modelFile" accept=".doc,.docx" required>
+                <div class="file-info">Apenas arquivos DOC/DOCX são aceitos. Tamanho máximo: 10MB</div>
               </div>
               <div class="form-group">
                 <label for="modelCategory">Categoria</label>
@@ -2277,45 +2326,9 @@
       const dashboardLoading = document.getElementById('dashboard-loading');
       const dashboardContainer = document.getElementById('dashboard-container');
       const refreshBtn = document.getElementById('refresh-dashboard');
-      const periodoSelect = document.getElementById('periodo-filtro');
-      const datasPersonalizado = document.getElementById('datas-personalizado');
-      const dataInicio = document.getElementById('data-inicio');
-      const dataFim = document.getElementById('data-fim');
-      const aplicarDatasBtn = document.getElementById('aplicar-datas');
       const exportPdfBtn = document.getElementById('export-pdf');
       
-      let filtroAtual = 'todos';
-      let dataInicioAtual = null;
-      let dataFimAtual = null;
-      
       if (!refreshBtn) return; // Se não encontrar os elementos, não faz nada
-      
-      // Configurar evento de mudança do select de período
-      periodoSelect.addEventListener('change', function() {
-        const valor = this.value;
-        
-        // Mostrar/esconder seção de datas personalizadas
-        if (valor === 'personalizado') {
-          datasPersonalizado.classList.remove('hidden');
-        } else {
-          datasPersonalizado.classList.add('hidden');
-          filtroAtual = valor;
-          loadDashboardData();
-        }
-      });
-      
-      // Configurar evento do botão aplicar datas
-      aplicarDatasBtn.addEventListener('click', function() {
-        if (!dataInicio.value || !dataFim.value) {
-          alert('Por favor, informe data inicial e final para o filtro.');
-          return;
-        }
-        
-        dataInicioAtual = dataInicio.value;
-        dataFimAtual = dataFim.value;
-        filtroAtual = 'personalizado';
-        loadDashboardData();
-      });
       
       // Configurar evento do botão exportar PDF
       exportPdfBtn.addEventListener('click', exportToPDF);
@@ -2359,31 +2372,9 @@
           const hoje = new Date().toLocaleDateString('pt-BR');
           doc.text(`Gerado em: ${hoje}`, width / 2, 22, { align: 'center' });
           
-          // Adicionar informações do período
+          // Adicionar informações do período - agora apenas "todos os dados"
           doc.setFontSize(11);
-          let periodoInfo = '';
-          switch (filtroAtual) {
-            case 'todos':
-              periodoInfo = 'Período: Todos os dados';
-              break;
-            case '7dias':
-              periodoInfo = 'Período: Últimos 7 dias';
-              break;
-            case '30dias':
-              periodoInfo = 'Período: Últimos 30 dias';
-              break;
-            case '90dias':
-              periodoInfo = 'Período: Último trimestre';
-              break;
-            case '365dias':
-              periodoInfo = 'Período: Último ano';
-              break;
-            case 'personalizado':
-              const inicio = new Date(dataInicioAtual).toLocaleDateString('pt-BR');
-              const fim = new Date(dataFimAtual).toLocaleDateString('pt-BR');
-              periodoInfo = `Período: ${inicio} a ${fim}`;
-              break;
-          }
+          const periodoInfo = 'Período: Todos os dados';
           doc.text(periodoInfo, width / 2, 30, { align: 'center' });
           
           // Capturar os cards de estatísticas
@@ -2536,38 +2527,8 @@
           dashboardLoading.style.display = 'block';
           dashboardContainer.style.display = 'none';
           
-          // Preparar parâmetros para a URL com base no filtro selecionado
+          // Simplificado para não usar mais filtros
           let url = new URL(n8nWebhooks.dashboard);
-          
-          // Adicionar parâmetros de filtro à URL
-          if (filtroAtual !== 'todos') {
-            if (filtroAtual === 'personalizado' && dataInicioAtual && dataFimAtual) {
-              url.searchParams.append('data_inicio', dataInicioAtual);
-              url.searchParams.append('data_fim', dataFimAtual);
-            } else {
-              // Calcular datas com base no período selecionado
-              const hoje = new Date();
-              let dataInicio = new Date();
-              
-              switch (filtroAtual) {
-                case '7dias':
-                  dataInicio.setDate(hoje.getDate() - 7);
-                  break;
-                case '30dias':
-                  dataInicio.setDate(hoje.getDate() - 30);
-                  break;
-                case '90dias':
-                  dataInicio.setDate(hoje.getDate() - 90);
-                  break;
-                case '365dias':
-                  dataInicio.setDate(hoje.getDate() - 365);
-                  break;
-              }
-              
-              url.searchParams.append('data_inicio', dataInicio.toISOString().split('T')[0]);
-              url.searchParams.append('data_fim', hoje.toISOString().split('T')[0]);
-            }
-          }
           
           const response = await fetch(url, {
             method: 'GET',
@@ -2604,10 +2565,10 @@
           dashboardLoading.style.display = 'none';
           dashboardContainer.style.display = 'block';
           
-          // Mostrar período filtrado no dashboard
+          // Mostrar texto informativo fixo do período
           const periodoInfo = document.createElement('div');
           periodoInfo.className = 'periodo-info';
-          periodoInfo.innerHTML = getPeriodoInfoText();
+          periodoInfo.innerHTML = '<p style="margin-bottom: 20px; font-style: italic; color: var(--text-secondary);">Exibindo dados de todo o período</p>';
           
           // Verificar se já existe um elemento de período info e removê-lo antes de adicionar o novo
           const periodoInfoExistente = document.querySelector('.periodo-info');
@@ -2628,36 +2589,8 @@
         }
       }
       
-      // Função para obter o texto informativo do período filtrado
-      function getPeriodoInfoText() {
-        let textoInfo = '<p style="margin-bottom: 20px; font-style: italic; color: var(--text-secondary);">Exibindo dados ';
-        
-        switch (filtroAtual) {
-          case 'todos':
-            textoInfo += 'de todo o período';
-            break;
-          case '7dias':
-            textoInfo += 'dos últimos 7 dias';
-            break;
-          case '30dias':
-            textoInfo += 'dos últimos 30 dias';
-            break;
-          case '90dias':
-            textoInfo += 'do último trimestre';
-            break;
-          case '365dias':
-            textoInfo += 'do último ano';
-            break;
-          case 'personalizado':
-            const inicio = new Date(dataInicioAtual);
-            const fim = new Date(dataFimAtual);
-            textoInfo += `do período de ${inicio.toLocaleDateString('pt-BR')} a ${fim.toLocaleDateString('pt-BR')}`;
-            break;
-        }
-        
-        textoInfo += '</p>';
-        return textoInfo;
-      }
+      // Atualizar o dashboard quando clicar no botão
+      refreshBtn.addEventListener('click', loadDashboardData);
       
       // Função para processar o array bruto retornado pelo n8n
       function processarDadosBrutos(dadosBrutos) {
@@ -2896,72 +2829,6 @@
           mesScrollIndicator.style.display = 'none';
         }
         
-        // Função para exibir tooltip
-        function showTooltip(event, bar, tooltip, totalDocumentos) {
-          const label = bar.getAttribute('data-label');
-          const value = bar.getAttribute('data-value');
-          const percent = bar.getAttribute('data-percent');
-          const mesCompleto = bar.getAttribute('data-mes-completo');
-          
-          // Calcular percentual do total de documentos
-          const valorNumerico = parseInt(value.replace(/\D/g, ''));
-          const percentualTotal = totalDocumentos ? ((valorNumerico / totalDocumentos) * 100).toFixed(1) + '%' : 'N/A';
-          
-          // Conteúdo do tooltip
-          let tooltipContent = `
-            <strong>${mesCompleto || label}</strong><br>
-            Quantidade: ${value}<br>
-            Percentual do total: ${percentualTotal}<br>
-            Altura no gráfico: ${percent}
-          `;
-          
-          tooltip.innerHTML = tooltipContent;
-          tooltip.classList.add('show');
-          
-          // Remover classe de posição para nova verificação
-          tooltip.classList.remove('left-position');
-          
-          // Posicionar o tooltip
-          const tooltipHeight = tooltip.offsetHeight;
-          const tooltipWidth = tooltip.offsetWidth;
-          
-          // Verificar se o evento é touch ou mouse
-          let clientX, clientY;
-          if (event.type === 'touchstart') {
-            clientX = event.touches[0].clientX;
-            clientY = event.touches[0].clientY;
-          } else {
-            clientX = event.clientX;
-            clientY = event.clientY;
-          }
-          
-          // Posicionar o tooltip próximo ao cursor (5px de distância)
-          tooltip.style.left = (clientX + 10) + 'px'; // 10px à direita do cursor
-          tooltip.style.top = (clientY - tooltipHeight/2) + 'px'; // Centralizado verticalmente com o cursor
-          
-          // Verificar se o tooltip está fora da tela horizontalmente
-          const rightEdge = window.innerWidth;
-          if (clientX + tooltipWidth + 15 > rightEdge) {
-            // Se estiver saindo pela direita, mostrar à esquerda do cursor
-            tooltip.style.left = (clientX - tooltipWidth - 10) + 'px';
-            tooltip.classList.add('left-position'); // Adicionar classe para posicionar seta corretamente
-          }
-          
-          // Verificar se o tooltip está fora da tela verticalmente
-          const topEdge = window.scrollY;
-          const bottomEdge = window.scrollY + window.innerHeight;
-          const tooltipTop = clientY - tooltipHeight/2;
-          const tooltipBottom = tooltipTop + tooltipHeight;
-          
-          if (tooltipTop < topEdge) {
-            // Se estiver saindo por cima, ajustar para ficar dentro da tela
-            tooltip.style.top = (topEdge + 5) + 'px';
-          } else if (tooltipBottom > bottomEdge) {
-            // Se estiver saindo por baixo, ajustar para ficar dentro da tela
-            tooltip.style.top = (bottomEdge - tooltipHeight - 5) + 'px';
-          }
-        }
-        
         // Tabela de usuários mais ativos
         const usuariosAtivosTable = document.getElementById('usuarios-ativos-tbody');
         usuariosAtivosTable.innerHTML = '';
@@ -2979,6 +2846,72 @@
         }
       }
       
+      // Função para exibir tooltip
+      function showTooltip(event, bar, tooltip, totalDocumentos) {
+        const label = bar.getAttribute('data-label');
+        const value = bar.getAttribute('data-value');
+        const percent = bar.getAttribute('data-percent');
+        const mesCompleto = bar.getAttribute('data-mes-completo');
+        
+        // Calcular percentual do total de documentos
+        const valorNumerico = parseInt(value.replace(/\D/g, ''));
+        const percentualTotal = totalDocumentos ? ((valorNumerico / totalDocumentos) * 100).toFixed(1) + '%' : 'N/A';
+        
+        // Conteúdo do tooltip
+        let tooltipContent = `
+          <strong>${mesCompleto || label}</strong><br>
+          Quantidade: ${value}<br>
+          Percentual do total: ${percentualTotal}<br>
+          Altura no gráfico: ${percent}
+        `;
+        
+        tooltip.innerHTML = tooltipContent;
+        tooltip.classList.add('show');
+        
+        // Remover classe de posição para nova verificação
+        tooltip.classList.remove('left-position');
+        
+        // Posicionar o tooltip
+        const tooltipHeight = tooltip.offsetHeight;
+        const tooltipWidth = tooltip.offsetWidth;
+        
+        // Verificar se o evento é touch ou mouse
+        let clientX, clientY;
+        if (event.type === 'touchstart') {
+          clientX = event.touches[0].clientX;
+          clientY = event.touches[0].clientY;
+        } else {
+          clientX = event.clientX;
+          clientY = event.clientY;
+        }
+        
+        // Posicionar o tooltip próximo ao cursor (5px de distância)
+        tooltip.style.left = (clientX + 10) + 'px'; // 10px à direita do cursor
+        tooltip.style.top = (clientY - tooltipHeight/2) + 'px'; // Centralizado verticalmente com o cursor
+        
+        // Verificar se o tooltip está fora da tela horizontalmente
+        const rightEdge = window.innerWidth;
+        if (clientX + tooltipWidth + 15 > rightEdge) {
+          // Se estiver saindo pela direita, mostrar à esquerda do cursor
+          tooltip.style.left = (clientX - tooltipWidth - 10) + 'px';
+          tooltip.classList.add('left-position'); // Adicionar classe para posicionar seta corretamente
+        }
+        
+        // Verificar se o tooltip está fora da tela verticalmente
+        const topEdge = window.scrollY;
+        const bottomEdge = window.scrollY + window.innerHeight;
+        const tooltipTop = clientY - tooltipHeight/2;
+        const tooltipBottom = tooltipTop + tooltipHeight;
+        
+        if (tooltipTop < topEdge) {
+          // Se estiver saindo por cima, ajustar para ficar dentro da tela
+          tooltip.style.top = (topEdge + 5) + 'px';
+        } else if (tooltipBottom > bottomEdge) {
+          // Se estiver saindo por baixo, ajustar para ficar dentro da tela
+          tooltip.style.top = (bottomEdge - tooltipHeight - 5) + 'px';
+        }
+      }
+      
       // Formatador de números para exibição
       function formatNumber(number, decimals = 0) {
         if (isNaN(number)) return '0';
@@ -2987,9 +2920,6 @@
           maximumFractionDigits: decimals
         });
       }
-      
-      // Atualizar o dashboard quando clicar no botão
-      refreshBtn.addEventListener('click', loadDashboardData);
       
       // Carregar os dados iniciais
       loadDashboardData();
@@ -3054,7 +2984,8 @@
           rota: currentRoute,
           rota_texto: currentRouteText,
           cpf: cpfValue,
-          acao: 'consulta'
+          acao: 'consulta',
+          usuario_id: sessionStorage.getItem('userId') || ''
         };
 
         try {
@@ -3576,15 +3507,16 @@
         // Validar arquivo
         const fileInput = modelFileInput;
         if (fileInput.files.length === 0) {
-          alert('Por favor, selecione um arquivo PDF.');
+          alert('Por favor, selecione um arquivo DOC/DOCX.');
           return;
         }
         
         const file = fileInput.files[0];
         
         // Verificar tipo do arquivo
-        if (file.type !== 'application/pdf') {
-          alert('Por favor, selecione um arquivo PDF válido.');
+        const validTypes = ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        if (!validTypes.includes(file.type)) {
+          alert('Por favor, selecione um arquivo DOC ou DOCX válido.');
           return;
         }
         
@@ -3609,6 +3541,10 @@
           formData.append('categoria', modelCategoryInput.value);
           formData.append('usuario_id', sessionStorage.getItem('userId') || '');
           formData.append('acao', 'upload_modelo');
+          formData.append('destino', 'google_drive'); // Enviar para o Google Drive
+          
+          // Mostrar mensagem de upload para o Google Drive
+          loadingElement.innerHTML = '<div class="loading-spinner"></div><p>Enviando modelo para o Google Drive...</p>';
           
           // Enviar para o webhook
           const response = await fetch(n8nWebhooks.modelos, {
@@ -3622,7 +3558,7 @@
           document.body.removeChild(loadingElement);
           
           if (response.ok && result.success) {
-            showNotification('success', 'Modelo Enviado', `O modelo "${modelNameInput.value}" foi enviado com sucesso!`);
+            showNotification('success', 'Modelo Enviado', `O modelo "${modelNameInput.value}" foi enviado com sucesso para o Google Drive!`);
             
             // Limpar formulário
             uploadForm.reset();
@@ -4058,13 +3994,19 @@
                                 </div>
                                 
                                 <div style="display: flex; flex-direction: column; gap: 10px;">
-                                    <button id="btn-assinatura-digital" class="btn btn-success btn-lg">Gerar Assinatura Digital</button>
-                                    <button id="btn-abrir-documento" class="btn btn-primary">Abrir em Nova Aba</button>
+                                    <button id="btn-assinatura-digital" class="btn btn-success btn-lg">
+                                        <i class="fas fa-signature"></i> Gerar Assinatura Digital
+                                    </button>
+                                    <button id="btn-abrir-documento" class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt"></i> Abrir em Nova Aba
+                                    </button>
                                     <button id="btn-atualizar-documento" class="btn btn-warning" style="background-color: #ff9800; color: white; font-weight: bold; margin: 8px 0; position: relative; overflow: hidden;">
                                         <i class="fas fa-sync-alt"></i> Atualizar Arquivo
                                         <span style="position: absolute; width: 100%; height: 100%; top: 0; left: -100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); animation: shine 2s infinite;"></span>
                                     </button>
-                                    <button id="btn-voltar" class="btn btn-secondary">Voltar</button>
+                                    <button id="btn-voltar" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Voltar
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -4107,37 +4049,47 @@
                         const btnAtualizar = document.getElementById('btn-atualizar-documento');
                         if (btnAtualizar) {
                             btnAtualizar.addEventListener('click', function() {
-                                console.log("Atualizando documento...");
+                                console.log("Botão de atualizar documento clicado");
+                                // Mostrar feedback visual no botão
+                                const btnAtualizar = this;
+                                const originalText = btnAtualizar.innerHTML;
+                                btnAtualizar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Atualizando...';
+                                btnAtualizar.disabled = true;
                                 
-                                // Mostrar indicador de carregamento
-                                this.disabled = true;
-                                this.innerHTML = 'Atualizando...';
-                                
-                                // Obter referência ao iframe
+                                // Chamar a função de atualização
                                 const iframe = document.getElementById('documento-iframe');
                                 if (iframe) {
-                                    // Adicionar timestamp para forçar recarga sem cache
-                                    const timestamp = new Date().getTime();
-                                    const currentSrc = iframe.src;
-                                    
-                                    // Criar nova URL com timestamp
-                                    const newSrc = currentSrc.includes('?') 
-                                        ? `${currentSrc}&_ts=${timestamp}` 
-                                        : `${currentSrc}?_ts=${timestamp}`;
-                                    
-                                    // Definir função para quando o iframe terminar de carregar
+                                    // Função para quando o iframe terminar de carregar
                                     iframe.onload = function() {
-                                        btnAtualizar.disabled = false;
-                                        btnAtualizar.innerHTML = 'Atualizar Documento';
-                                        mostrarAviso('sucesso', 'Documento atualizado com sucesso!');
+                                        console.log("Iframe recarregado com sucesso");
+                                        setTimeout(() => {
+                                            btnAtualizar.innerHTML = originalText;
+                                            btnAtualizar.disabled = false;
+                                            mostrarAviso('sucesso', 'Documento atualizado com sucesso!');
+                                        }, 500);
                                     };
                                     
-                                    // Recarregar o iframe
+                                    // Adiciona um timestamp para forçar recarga sem cache
+                                    let currentSrc = iframe.src;
+                                    
+                                    // Remover timestamp anterior se existir
+                                    if (currentSrc.includes('t=')) {
+                                        currentSrc = currentSrc.replace(/[&?]t=\d+/, '');
+                                    }
+                                    
+                                    // Adicionar novo timestamp
+                                    const timestamp = new Date().getTime();
+                                    const newSrc = currentSrc.includes('?') ? 
+                                        `${currentSrc}&t=${timestamp}` : 
+                                        `${currentSrc}?t=${timestamp}`;
+                                    
+                                    // Atualizar o iframe
                                     iframe.src = newSrc;
+                                    console.log("Iframe atualizado com timestamp");
                                 } else {
-                                    this.disabled = false;
-                                    this.innerHTML = 'Atualizar Documento';
-                                    mostrarAviso('erro', 'Não foi possível atualizar o documento.');
+                                    mostrarAviso('erro', 'Não foi possível encontrar o documento para atualizar');
+                                    btnAtualizar.innerHTML = originalText;
+                                    btnAtualizar.disabled = false;
                                 }
                             });
                         }
@@ -4248,59 +4200,44 @@
                         <a href="${dados.url_documento}" target="_blank" class="alert-link">clique aqui para editar no Google Docs</a>.
                     </div>
                 </div>
+                
                 <div class="col-md-4">
                     <div class="card mb-4">
                         <div class="card-header bg-primary text-white">
                             <h5 class="mb-0">Detalhes do Documento</h5>
                         </div>
                         <div class="card-body">
-                            <div class="mb-3">
-                                <strong>Nome do arquivo:</strong>
-                                <p id="documento-nome">${dados.nome_documento || 'Documento Gerado'}</p>
-                            </div>
-                            <div class="mb-3">
-                                <strong>Tipo:</strong>
-                                <p>Termos Gerais</p>
-                            </div>
-                            <div class="mb-3">
-                                <strong>Gerado em:</strong>
-                                <p>${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card mb-4">
-                        <div class="card-header bg-secondary text-white">
-                            <h5 class="mb-0">Dados do Cliente</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <strong>Nome:</strong>
-                                <p>${document.getElementById('nome').value}</p>
-                            </div>
-                            <div class="mb-3">
-                                <strong>CPF:</strong>
-                                <p>${document.getElementById('cpf').value}</p>
-                            </div>
-                            <div class="mb-3">
-                                <strong>Endereço:</strong>
-                                <p>${document.getElementById('endereco').value}</p>
+                            <div style="display: flex; flex-direction: column; gap: 15px;">
+                                <div>
+                                    <h3 style="font-size: 16px; margin-bottom: 10px; color: #0c3c82;">Detalhes do Documento</h3>
+                                    <p><strong>Nome do arquivo:</strong> <span>${dados.nome_documento || "Documento sem nome"}</span></p>
+                                    <p><strong>Tipo:</strong> <span>${dados.tipo_documento || "Documento padrão"}</span></p>
+                                    <p><strong>Gerado em:</strong> <span>${new Date().toLocaleString('pt-BR')}</span></p>
+                                </div>
+                                <div>
+                                    <h3 style="font-size: 16px; margin-bottom: 10px; color: #0c3c82;">Dados do Cliente</h3>
+                                    <p><strong>Nome:</strong> <span>${document.getElementById('nome').value}</span></p>
+                                    <p><strong>CPF:</strong> <span>${document.getElementById('cpf').value}</span></p>
+                                    <p><strong>Endereço:</strong> <span>${document.getElementById('endereco').value}</span></p>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="d-grid gap-2">
-                        <button id="btn-assinatura-digital" class="btn btn-success btn-lg">
-                            <i class="fas fa-signature"></i> Gerar Assinatura Digital
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px;">
+                        <button id="btn-assinatura-digital" class="btn btn-success" style="flex: 1; min-width: 120px; padding: 10px; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <i class="fas fa-signature"></i> Gerar Assinatura
                         </button>
-                        <button id="btn-abrir-documento" class="btn btn-primary">
-                            <i class="fas fa-external-link-alt"></i> Abrir em Nova Aba
+                        <button id="btn-atualizar-documento" class="btn btn-warning" style="flex: 1; min-width: 120px; padding: 10px; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background-color: #ff9800; color: white; font-weight: bold;">
+                            <i class="fas fa-sync-alt"></i> Atualizar
                         </button>
-                        <button id="btn-atualizar-documento" class="btn btn-warning" style="background-color: #ff9800; color: white; font-weight: bold; margin: 8px 0; position: relative; overflow: hidden;">
-                            <i class="fas fa-sync-alt"></i> Atualizar Arquivo
-                            <span style="position: absolute; width: 100%; height: 100%; top: 0; left: -100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); animation: shine 2s infinite;"></span>
+                        <button id="btn-imprimir-doc" class="btn btn-info" style="flex: 1; min-width: 120px; padding: 10px; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background-color: #2196F3; color: white; font-weight: bold;">
+                            <i class="fas fa-print"></i> Imprimir
                         </button>
-                        <button id="btn-voltar" class="btn btn-secondary">
+                        <button id="btn-abrir-documento" class="btn btn-primary" style="flex: 1; min-width: 120px; padding: 10px; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <i class="fas fa-external-link-alt"></i> Abrir
+                        </button>
+                        <button id="btn-voltar" class="btn btn-secondary" style="flex: 1; min-width: 120px; padding: 10px; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             <i class="fas fa-arrow-left"></i> Voltar
                         </button>
                     </div>
@@ -4368,7 +4305,7 @@
                     }, 500);
                 };
                 
-                // Adiciona um timestamp para forçar recarregamento
+                // Adiciona um timestamp para forçar recarga sem cache
                 let currentSrc = iframe.src;
                 
                 // Remover timestamp anterior se existir
@@ -5057,6 +4994,328 @@
         // Forçar execução após 2 segundos para garantir que o DOM está completamente carregado
         setTimeout(verificarTelaDocumento, 2000);
     })();
+  </script>
+
+  <!-- Script para adicionar botão de atualização na tela de documento -->
+  <script>
+    // Executar quando o DOM estiver totalmente carregado
+    document.addEventListener('DOMContentLoaded', function() {
+      // Função para adicionar o botão de atualizar
+      function adicionarBotaoAtualizar() {
+        // Verificar se estamos na tela de documento
+        const tituloPagina = document.querySelector('h2');
+        if (!tituloPagina || tituloPagina.textContent !== 'Documento Gerado') return;
+        
+        // Verificar se o botão já existe
+        if (document.getElementById('btn-atualizar-doc')) return;
+        
+        // Encontrar o contêiner dos botões
+        const botaoVoltar = document.querySelector('button.btn-secondary, .btn.btn-secondary, button:contains("Voltar")');
+        const botaoAbrir = document.querySelector('button.btn-primary, .btn.btn-primary, button:contains("Abrir em Nova Aba")');
+        
+        if (!botaoVoltar || !botaoAbrir) return;
+        
+        // Criar o botão de atualização
+        const botaoAtualizar = document.createElement('button');
+        botaoAtualizar.id = 'btn-atualizar-doc';
+        botaoAtualizar.className = 'btn btn-warning';
+        botaoAtualizar.innerText = 'Atualizar Documento';
+        botaoAtualizar.style.backgroundColor = '#ff9800';
+        botaoAtualizar.style.color = 'white';
+        botaoAtualizar.style.fontWeight = 'bold';
+        botaoAtualizar.style.marginLeft = '10px';
+        botaoAtualizar.style.marginRight = '10px';
+        
+        // Adicionar o botão antes do botão Voltar
+        botaoVoltar.parentNode.insertBefore(botaoAtualizar, botaoVoltar);
+        
+        // Adicionar funcionalidade ao botão
+        botaoAtualizar.addEventListener('click', function() {
+          // Mostrar indicador de carregamento no botão
+          this.disabled = true;
+          const textoOriginal = this.innerText;
+          this.innerText = 'Atualizando...';
+          
+          // Encontrar o iframe do documento
+          const iframe = document.querySelector('iframe');
+          if (iframe) {
+            // Configurar ação para quando o iframe terminar de carregar
+            iframe.onload = () => {
+              setTimeout(() => {
+                botaoAtualizar.disabled = false;
+                botaoAtualizar.innerText = textoOriginal;
+                
+                // Mostrar mensagem de sucesso
+                if (typeof mostrarAviso === 'function') {
+                  mostrarAviso('Sucesso', 'Documento atualizado com sucesso!', 'success');
+                } else {
+                  alert('Documento atualizado com sucesso!');
+                }
+              }, 500);
+            };
+            
+            // Atualizar o iframe adicionando timestamp para forçar recarregamento
+            let src = iframe.src;
+            if (src.includes('t=')) {
+              src = src.replace(/[&?]t=\d+/, '');
+            }
+            
+            const timestamp = new Date().getTime();
+            iframe.src = src.includes('?') ? `${src}&t=${timestamp}` : `${src}?t=${timestamp}`;
+          } else {
+            // Se não encontrar o iframe, restaurar o botão
+            this.disabled = false;
+            this.innerText = textoOriginal;
+            
+            // Mostrar mensagem de erro
+            if (typeof mostrarAviso === 'function') {
+              mostrarAviso('Erro', 'Não foi possível encontrar o documento para atualizar', 'error');
+            } else {
+              alert('Erro: Não foi possível encontrar o documento para atualizar');
+            }
+          }
+        });
+      }
+      
+      // Executar imediatamente
+      adicionarBotaoAtualizar();
+      
+      // Executar periodicamente para garantir que o botão seja adicionado após navegação
+      setInterval(adicionarBotaoAtualizar, 1000);
+      
+      // Observar mudanças no DOM para detectar quando a tela de documento é carregada
+      const observer = new MutationObserver(function() {
+        adicionarBotaoAtualizar();
+      });
+      
+      observer.observe(document.body, { childList: true, subtree: true });
+    });
+  </script>
+
+  <!-- Script específico para adicionar botão de atualização na tela -->
+  <script>
+    // Executar assim que o documento estiver disponível
+    document.addEventListener('DOMContentLoaded', function() {
+      // Adicionar estilos para notificações mais leves
+      const toastStyle = document.createElement('style');
+      toastStyle.id = 'toast-notificacao-style';
+      toastStyle.textContent = `
+        .toast-notificacao {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background-color: #4caf50;
+          color: white;
+          padding: 12px 20px;
+          border-radius: 4px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+          z-index: 9999;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+          animation: toastFadeIn 0.3s ease;
+        }
+        .toast-notificacao.erro {
+          background-color: #f44336;
+        }
+        .toast-notificacao i {
+          margin-right: 10px;
+          font-size: 20px;
+        }
+        @keyframes toastFadeIn {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes toastFadeOut {
+          from { opacity: 1; transform: translateY(0); }
+          to { opacity: 0; transform: translateY(-20px); }
+        }
+      `;
+      document.head.appendChild(toastStyle);
+      
+      // Função para mostrar notificação leve tipo toast
+      window.mostrarToast = function(mensagem, tipo = 'sucesso') {
+        // Remover qualquer toast existente
+        const toastExistente = document.querySelector('.toast-notificacao');
+        if (toastExistente) {
+          document.body.removeChild(toastExistente);
+        }
+        
+        // Criar novo toast
+        const toast = document.createElement('div');
+        toast.className = `toast-notificacao ${tipo === 'erro' ? 'erro' : ''}`;
+        toast.innerHTML = `<i class="fas fa-${tipo === 'erro' ? 'exclamation-circle' : 'check-circle'}"></i> ${mensagem}`;
+        
+        document.body.appendChild(toast);
+        
+        // Remover após 3 segundos
+        setTimeout(() => {
+          if (toast.parentNode) {
+            toast.style.animation = 'toastFadeOut 0.3s ease forwards';
+            setTimeout(() => {
+              if (toast.parentNode) {
+                document.body.removeChild(toast);
+              }
+            }, 300);
+          }
+        }, 3000);
+      };
+      
+      // Função para adicionar o botão
+      function adicionarBotaoAtualizar() {
+        // Verificar se existem botões na tela
+        const botoes = document.querySelectorAll('button');
+        let botaoAssinatura = null;
+        
+        for (const botao of botoes) {
+          if (botao.textContent.includes('Gerar Assinatura Digital')) {
+            botaoAssinatura = botao;
+            break;
+          }
+        }
+        
+        // Se encontrou o botão de assinatura e o botão já não existe
+        if (botaoAssinatura && !document.getElementById('botao-atualizar-doc')) {
+          // Criar o botão de atualizar
+          const botaoAtualizar = document.createElement('button');
+          botaoAtualizar.id = 'botao-atualizar-doc';
+          botaoAtualizar.className = botaoAssinatura.className.replace('btn-success', 'btn-warning');
+          botaoAtualizar.style.backgroundColor = '#ff9800';
+          botaoAtualizar.style.color = 'white';
+          botaoAtualizar.style.fontWeight = 'bold';
+          botaoAtualizar.innerHTML = '<i class="fas fa-sync-alt"></i> Atualizar Documento';
+          
+          // Criar o botão de impressão
+          const botaoImprimir = document.createElement('button');
+          botaoImprimir.id = 'botao-imprimir-doc';
+          botaoImprimir.className = botaoAssinatura.className.replace('btn-success', 'btn-info');
+          botaoImprimir.style.backgroundColor = '#2196F3';
+          botaoImprimir.style.color = 'white';
+          botaoImprimir.style.fontWeight = 'bold';
+          botaoImprimir.style.marginLeft = '15px'; // Adicionar margem à esquerda
+          botaoImprimir.innerHTML = '<i class="fas fa-print"></i> Imprimir Documento';
+          
+          // Inserir após o botão de assinatura digital
+          botaoAssinatura.insertAdjacentElement('afterend', botaoAtualizar);
+          botaoAtualizar.insertAdjacentElement('afterend', botaoImprimir);
+          
+          // Adicionar funcionalidade otimizada ao botão de atualizar
+          botaoAtualizar.addEventListener('click', function() {
+            // Indicador visual de carregamento
+            this.disabled = true;
+            const textoOriginal = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Atualizando...';
+            
+            // Encontrar o iframe do documento
+            const iframe = document.querySelector('iframe');
+            if (iframe) {
+              // PRIMEIRO: Atualizar o iframe imediatamente para maior velocidade
+              let src = iframe.src;
+              if (src.includes('t=')) {
+                src = src.replace(/[&?]t=\d+/, '');
+              }
+              
+              // Adicionar timestamp único para forçar recarga
+              const timestamp = new Date().getTime();
+              const newSrc = src.includes('?') ? 
+                `${src}&t=${timestamp}` : 
+                `${src}?t=${timestamp}`;
+              
+              // Configurar evento onload antes de mudar o src
+              iframe.onload = () => {
+                // Restaurar estado do botão
+                setTimeout(() => {
+                  botaoAtualizar.disabled = false;
+                  botaoAtualizar.innerHTML = textoOriginal;
+                  // Mostrar notificação leve
+                  window.mostrarToast('Documento atualizado com sucesso!');
+                }, 300);
+              };
+              
+              // Atualizar o src após configurar o evento onload
+              iframe.src = newSrc;
+            } else {
+              // Restaurar o botão em caso de erro
+              setTimeout(() => {
+                this.disabled = false;
+                this.innerHTML = textoOriginal;
+                window.mostrarToast('Não foi possível encontrar o documento', 'erro');
+              }, 300);
+            }
+          });
+          
+          // Adicionar funcionalidade ao botão de impressão
+          botaoImprimir.addEventListener('click', function() {
+            // Indicador visual de carregamento
+            this.disabled = true;
+            const textoOriginal = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparando...';
+            
+            // Encontrar o iframe do documento
+            const iframe = document.querySelector('iframe');
+            if (iframe) {
+              try {
+                // Criar uma nova janela para impressão
+                const printWindow = window.open('', '_blank');
+                if (printWindow) {
+                  // Criar conteúdo temporário para impressão
+                  printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                      <title>Impressão de Documento</title>
+                      <style>
+                        body { margin: 0; padding: 0; }
+                        iframe { width: 100%; height: 100vh; border: none; }
+                        @media print {
+                          body { margin: 0; padding: 0; }
+                          iframe { height: auto; min-height: 100vh; }
+                        }
+                      </style>
+                    </head>
+                    <body>
+                      <iframe src="${iframe.src}" onload="setTimeout(function() { window.print(); }, 1000);"></iframe>
+                    </body>
+                    </html>
+                  `);
+                  printWindow.document.close();
+                  
+                  // Instruir o usuário após abrir a janela
+                  window.mostrarToast('Documento aberto para impressão. Use as opções do navegador para imprimir');
+                } else {
+                  // Se o navegador bloqueou o popup
+                  window.mostrarToast('Seu navegador bloqueou o popup de impressão. Por favor, permita popups para este site.', 'erro');
+                }
+              } catch (error) {
+                console.error('Erro ao tentar imprimir:', error);
+                window.mostrarToast('Não foi possível imprimir. Tente usar a opção "Abrir em Nova Aba" e depois imprimir do navegador.', 'erro');
+              }
+                
+              // Restaurar o botão
+              setTimeout(() => {
+                this.disabled = false;
+                this.innerHTML = textoOriginal;
+              }, 1000);
+            } else {
+              // Restaurar o botão
+              this.disabled = false;
+              this.innerHTML = textoOriginal;
+              window.mostrarToast('Não foi possível encontrar o documento para imprimir', 'erro');
+            }
+          });
+        }
+      }
+      
+      // Tentar adicionar o botão imediatamente
+      adicionarBotaoAtualizar();
+      
+      // Continuar tentando adicionar em intervalos de tempo
+      setInterval(adicionarBotaoAtualizar, 1000);
+      
+      // Também observar mudanças no DOM
+      const observer = new MutationObserver(adicionarBotaoAtualizar);
+      observer.observe(document.body, { childList: true, subtree: true });
+    });
   </script>
 </body>
 </html>
